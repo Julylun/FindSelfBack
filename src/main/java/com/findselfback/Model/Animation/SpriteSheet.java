@@ -26,6 +26,22 @@ public class SpriteSheet {
     private int currentTime;
     private int tileWidth, tileHeight;
     private int frameIndex;
+
+    /**
+     * SpriteSheet dùng để đơn giản hóa cài đặt asset cho nhân vật
+     * tham số bao gồm "đường dẫn tới sprite sheet", tile width, tile height.
+     * Cách sử dụng:
+     * - Tạo ra một đối tượng SpriteSheet;
+     * - Tạo ra một đối tượng Vector<Coordinate2D>
+     * - Thêm vào đối tượng vector trên các tọa độ của frame trong animation
+     * - Sử dụng hàm createSprite(int spriteKey, Vector<Coordinate2>) để tạo ra một animation mới
+     * - Sử dụng hàm setDelayTime(int delayTime) để tùy chỉnh thời gian một frame chay
+     * - Sử dụng hàm setCurrentSprite(int spriteKey) để gọi animation cần chạy
+     * - Sử dụng hàm nextFrame(bool isFlip) để chuyển qua frame tiếp theo của animation đã đặt
+     * @param assetSheetPath
+     * @param w
+     * @param h
+     */
     public SpriteSheet(String assetSheetPath, int w, int h){
         try {
             this.assetSheet = ImageIO.read(new File(assetSheetPath));
@@ -39,7 +55,7 @@ public class SpriteSheet {
     }
 
     /**
-     * Set sprite by sprite name
+     * Đặt animation hiện tại bằng sprite key
      * @param spriteKey
      */
     public void setCurrentSprite(int spriteKey){
@@ -57,7 +73,8 @@ public class SpriteSheet {
     }
 
     /**
-     * Skip current frame and set current sprite to next sprite
+     * Bỏ qua frame hiện tại và chuyển qua frame tiếp theo của animation.
+     * Nếu tham số isFlip = true thì frame sẽ được lật theo phương thẳng đứng, ngược lại không lật
      */
     public void nextFrame(boolean isFlip){
         if(currentTime >= delayTime){
@@ -77,6 +94,7 @@ public class SpriteSheet {
 
     /**
      * Create a new sprite (animation), for example walking, idle, running, attacking...
+     * Thêm một animation vào sprite sheet, ví dụ như ĐI, ĐỨNG YÊN, CHẠY, TẤN CÔNG...
      *
      * @param spriteKey
      */
@@ -88,7 +106,7 @@ public class SpriteSheet {
     }
 
     /**
-     * Remove a sprite by sprite name
+     * Loại bỏ một animation ra khỏi sprite sheet bằng sprite key
      * @param spriteKey
      */
     public void removeSprite(int spriteKey){
@@ -96,8 +114,8 @@ public class SpriteSheet {
     }
 
     /**
-     * Add a frame to sprite;
-     * return true if exist sprite name, else return false
+     * Thêm một frame vào animation
+     * Trả về true nếu animation tồn tại và thêm thành công, trả về false nếu animation không tồn tại
      * @param spriteKey
      * @param spriteCoordinate
      * @return
@@ -112,7 +130,7 @@ public class SpriteSheet {
     }
 
     /**
-     * Remove a frame from sprite coordinated vector containing your frame.
+     * Loại bỏ một frame ra khỏi animation
      * @param spriteKey
      * @param spriteIndex
      * @return true if removing is completed, return false if the sprite map have

@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 import static com.findselfback.Model.Constant.Animation.*;
@@ -21,32 +22,34 @@ public class Player extends Entity {
     public Player(GamePlayPanel gamePlayPanel, String spritePath, KeyHandle keyHandle){
         thisGamePlayPanel = gamePlayPanel;
         thisKeyHandle = keyHandle;
-        this.sprite = new SpriteSheet(spritePath, 128, 128);
-
+        this.sprite = new SpriteSheet(spritePath, thisGamePlayPanel.ORIGINAL_TILE_SIZE, thisGamePlayPanel.ORIGINAL_TILE_SIZE);
 
         init();
     }
-
     private void init(){
         //Set location and speed
         this.x = 200;
         this.y = 200;
-        this.speed = 4;
+        this.speed = 1f;
 
+        loadAnimation();
+    }
+
+    private void loadAnimation(){
         //Set sprite
         //--Running animation
         Vector<Coordinate2D> coordinate2DVector = new Vector<>();
-        for(int i = 0; i < 8; i++)
-        coordinate2DVector.add(new Coordinate2D(i*128,129));
+        for(int i = 0; i < 13; i++)
+            coordinate2DVector.add(new Coordinate2D(i*32,32));
         sprite.createSprite(RUNNING,coordinate2DVector);
         //--Idle animation
         coordinate2DVector = new Vector<>();
-        for(int i = 0; i < 8; i++)
-            coordinate2DVector.add(new Coordinate2D(i*128,0));
+        for(int i = 0; i < 11; i++)
+            coordinate2DVector.add(new Coordinate2D(i*32,0));
         sprite.createSprite(IDLE,coordinate2DVector);
         sprite.setCurrentSprite(IDLE);
 
-        sprite.setDelayTime(5);
+        sprite.setDelayTime(2);
     }
 
 
@@ -64,26 +67,10 @@ public class Player extends Entity {
                 y+= speed;
             }
             if(thisKeyHandle.leftPressed){
-//                thisKeyHandle.setLastPressed(KeyEvent.VK_A);
-                sprite.nextFrame(true);
-                sprite.setCurrentSprite(RUNNING);
                 x-= speed;
             }
             if(thisKeyHandle.rightPressed){
-//                thisKeyHandle.setLastPressed(KeyEvent.VK_D);
-                sprite.setCurrentSprite(RUNNING);
-                sprite.nextFrame(false);
                 x+= speed;
-            }
-        } else{
-            sprite.setCurrentSprite(IDLE);
-            if(thisKeyHandle.getLastPressed() == KeyEvent.VK_A){
-                PrintColor.debug(PrintColor.CYAN_BRIGHT,"Player","update","last key = " + thisKeyHandle.getLastPressed());
-                sprite.nextFrame(true);
-            }
-            else {
-                PrintColor.debug(PrintColor.RED_BRIGHT,"Player","update","last key = " + thisKeyHandle.getLastPressed());
-                sprite.nextFrame(false);
             }
         }
 
@@ -92,8 +79,29 @@ public class Player extends Entity {
     @Override
     public void paint(Graphics g) {
         Graphics2D graphics2D = (Graphics2D) g.create();
-        graphics2D.drawImage(sprite.getCurrentSprite(),x,y,sprite.getTileWidth(),sprite.getTileHeight(),null);
+//                PrintColor.debug(PrintColor.CYAN_BRIGHT, "Player", "update", "x: " + x + " | y: " + y);
+
+        if (!thisKeyHandle.isNoPressed()) {
+            if (thisKeyHandle.leftPressed) {
+                sprite.nextFrame(true);
+                sprite.setCurrentSprite(RUNNING);
+            }
+            if (thisKeyHandle.rightPressed) {
+                sprite.setCurrentSprite(RUNNING);
+                sprite.nextFrame(false);
+            }
+        } else {
+            sprite.setCurrentSprite(IDLE);
+            if (thisKeyHandle.getLastPressed() == KeyEvent.VK_A) {
+//                PrintColor.debug(PrintColor.CYAN_BRIGHT, "Player", "update", "last key = " + thisKeyHandle.getLastPressed());
+                sprite.nextFrame(true);
+            } else {
+//                PrintColor.debug(PrintColor.RED_BRIGHT, "Player", "update", "last key = " + thisKeyHandle.getLastPressed());
+                sprite.nextFrame(false);
+            }
+        }
+
+
+        graphics2D.drawImage(sprite.getCurrentSprite(), (int)x, (int)y, (int)(sprite.getTileWidth()*thisGamePlayPanel.SCALE), (int)(sprite.getTileHeight()*thisGamePlayPanel.SCALE), null);
     }
-
-
 }

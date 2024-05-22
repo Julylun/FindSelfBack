@@ -8,8 +8,8 @@ import java.awt.*;
 
 @Data
 public abstract class Entity {
-    public int x,y;
-    public int speed;
+    public float x,y;
+    public float speed;
 
 
     public abstract void update();

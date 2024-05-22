@@ -34,8 +34,9 @@ public class GamePlayPanel extends JPanel implements Runnable{
     private final GameFrame thisGameFrame;
 
     //originalTileSize is a default variable of "game's pixel" (block)
-    private final int ORIGINAL_TILE_SIZE = 128;
-    private final double SCALE = 0.5;
+    public final int ORIGINAL_TILE_SIZE = 32;
+    public final double SCALE = 2; //scaling value
+
 
     //the tile size after scaling
     public final int TILE_SIZE = (int)(ORIGINAL_TILE_SIZE * SCALE); //128*3 = 384px ~ 1 block pixel of game;
@@ -44,9 +45,10 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public final int SCREEN_WIDTH = TILE_SIZE * MAX_SCREEN_COLUMN;
     public final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW;
     public final int FPS = 60;
+    public final int UPS = 200;
 
     private KeyHandle keyHandle = new KeyHandle();
-    private Player player = new Player(this,"src/main/resources/PlayerSheet.png", keyHandle);
+    private Player player = new Player(this,"src/main/resources/PlayerSheet2.png", keyHandle);
     private Thread gameThread;
 
     private FPSCounter fpsCounter;
@@ -69,6 +71,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
         startGameThread();
     }
+
     public void startGameThread(){
         gameThread = new Thread(this);
         gameThread.start();
@@ -77,14 +80,43 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public void run() {
         PrintColor.debug(PrintColor.YELLOW_UNDERLINED,"GamePlayPanel","run","Game is running...");
         double drawInterval = 1000000000/FPS; //Average time of a frame in theory
-        double nextDrawTime = System.nanoTime() + drawInterval; //The next time we wil draw a frame base on theory
+        double updateInterval = 1000000000/UPS;
+
+        double deltaFrame = 0;
+        double deltaUpdate  = 0;
+        double lastCheck = System.currentTimeMillis();
+        double previousTime = 0;
+        double frames = 0, updates = 0;
+
         while (true){
-            double firstTime = System.nanoTime();
-            update(); //update
-            repaint(); //paint
+            double currentTime = System.nanoTime();
+
+            deltaUpdate += (currentTime - previousTime) / updateInterval;
+            deltaFrame += (currentTime - previousTime) / drawInterval;
+            previousTime = currentTime;
 
 
-            try{
+            if(deltaUpdate >= 1) {
+                update();
+                updates++;
+                deltaUpdate--;
+            }
+
+            if(deltaFrame >= 1) {
+                repaint();
+                frames++;
+                deltaFrame--;
+                fpsCounter.interrupt();
+            }
+
+            if(System.currentTimeMillis() - lastCheck >= 1000){
+                lastCheck +=1000;
+                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + frames + " | UPS: " + updates);
+                frames = 0;
+                updates = 0;
+            }
+
+
 
                 //Explain how does this loop work?
                 //Following computer's theory, average drawing time of a frame is equal 1000000000(nano seconds)/FPS
@@ -95,19 +127,8 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 // a distance from present to nextDrawTime (delay the remainingTime);
                 // But else if remainingTime < 0, that means the computer is so weak and that haven't process data
                 //yet baut following the theory it has to draw. so we will not delay and the screen will be lagged
-                double remainingTime = nextDrawTime - System.nanoTime();
-                if(remainingTime < 0){
-                    remainingTime = 0;
-                }
-                Thread.sleep((long) (remainingTime/1000000));
-                nextDrawTime += drawInterval;
-                PrintColor.println(PrintColor.BLUE_BOLD, "FPS: " + fpsCounter.fps());
-                fpsCounter.interrupt();
-            }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+
+    }
     }
 
     public void update(){
