@@ -3,6 +3,10 @@ package com.findselfback.View;
 import com.findselfback.Control.KeyHandle;
 import com.findselfback.Model.Player;
 import com.findselfback.Model.PrintColor;
+import com.findselfback.Model.Stage.Level;
+import com.findselfback.Model.Stage.LoadSave;
+import com.findselfback.Model.Stage.MapManager;
+import lombok.Data;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,25 +34,27 @@ class FPSCounter extends Thread{
         return fps;
     }
 }
+@Data
 public class GamePlayPanel extends JPanel implements Runnable{
     private final GameFrame thisGameFrame;
 
     //originalTileSize is a default variable of "game's pixel" (block)
-    public final int ORIGINAL_TILE_SIZE = 32;
-    public final double SCALE = 2; //scaling value
+    public static final int ORIGINAL_TILE_SIZE = 32;
+    public static final double SCALE = 2; //scaling value
 
 
     //the tile size after scaling
-    public final int TILE_SIZE = (int)(ORIGINAL_TILE_SIZE * SCALE); //128*3 = 384px ~ 1 block pixel of game;
-    public final int MAX_SCREEN_COLUMN =  16;
-    public final int MAX_SCREEN_ROW =  9;
-    public final int SCREEN_WIDTH = TILE_SIZE * MAX_SCREEN_COLUMN;
-    public final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW;
-    public final int FPS = 60;
-    public final int UPS = 200;
+    public static final int TILE_SIZE = (int)(ORIGINAL_TILE_SIZE * SCALE); //128*3 = 384px ~ 1 block pixel of game;
+    public static final int MAX_SCREEN_COLUMN =  16;
+    public static final int MAX_SCREEN_ROW =  9;
+    public static final int SCREEN_WIDTH = TILE_SIZE * MAX_SCREEN_COLUMN;
+    public static final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW;
+    public static final int FPS = 60;
+    public static final int UPS = 200;
 
     private KeyHandle keyHandle = new KeyHandle();
-    private Player player = new Player(this,"src/main/resources/PlayerSheet2.png", keyHandle);
+    private Player player = new Player(this,"src/main/resources/assets/PlayerSheet2.png", keyHandle);
+    private MapManager mapManager;
     private Thread gameThread;
 
     private FPSCounter fpsCounter;
@@ -68,8 +74,13 @@ public class GamePlayPanel extends JPanel implements Runnable{
         fpsCounter.start();
 
         gameFrame.addKeyListener(keyHandle);
-
+        init();
         startGameThread();
+    }
+    public void init(){
+        mapManager = new MapManager(this);
+        mapManager.autoGetSprite(LoadSave.getSpriteAtlas(LoadSave.MAP_ATLAS_PATH));
+        mapManager.setLevel(LoadSave.STAGE_ONE_PATH);
     }
 
     public void startGameThread(){
@@ -138,7 +149,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        mapManager.draw(g);
         player.paint(g);
 
 

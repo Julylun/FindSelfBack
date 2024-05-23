@@ -1,15 +1,16 @@
 package com.findselfback.Model.Abstract;
 
 
-import com.findselfback.Control.KeyHandle;
 import lombok.Data;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 @Data
 public abstract class Entity {
-    public float x,y;
-    public float speed;
+    protected float x,y;
+    protected float speed;
+    protected Rectangle2D.Float hitBox;
 
 
     public abstract void update();
