@@ -1,7 +1,5 @@
-package com.findselfback.Model.Animation;
+package com.findselfback.Utilz;
 
-import com.findselfback.Model.Graphic.Coordinate2D;
-import com.findselfback.Model.PrintColor;
 import lombok.Data;
 
 import javax.imageio.ImageIO;
@@ -9,8 +7,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;

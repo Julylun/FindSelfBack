@@ -1,4 +1,4 @@
-package com.findselfback.Model;
+package com.findselfback.Utilz;
 
 /**
  * *PrintColor* is used to print out colored message such as red, cyan, black, yellow... instead of

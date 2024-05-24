@@ -1,4 +1,4 @@
-package com.findselfback.Model.Math;
+package com.findselfback.Utilz;
 
 import com.findselfback.View.GamePlayPanel;
 

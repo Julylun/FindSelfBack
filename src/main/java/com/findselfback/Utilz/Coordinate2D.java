@@ -1,4 +1,4 @@
-package com.findselfback.Model.Graphic;
+package com.findselfback.Utilz;
 
 import lombok.Data;
 

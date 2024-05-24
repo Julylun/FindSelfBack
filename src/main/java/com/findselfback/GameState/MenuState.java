@@ -1,0 +1,96 @@
+package com.findselfback.GameState;
+
+import com.findselfback.Control.Statemethod;
+import com.findselfback.UI.MenuButton;
+import com.findselfback.Utilz.Constant;
+import com.findselfback.View.GamePlayPanel;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+
+import static com.findselfback.Utilz.Constant.UI.MenuSize.FVF_FERNANDO;
+
+public class MenuState extends State implements Statemethod {
+    private MenuButton startButton;
+    public MenuState(GamePlayPanel gamePlayPanel) {
+        super(gamePlayPanel);
+        init();
+    }
+    private void init(){
+        startButton = new MenuButton(GamePlayPanel.SCREEN_WIDTH/5,(GamePlayPanel.SCREEN_HEIGHT- Constant.UI.MenuSize.SCALING_WIDTH)/2,"Start");
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(FVF_FERNANDO);
+//        g.drawString("Start",GamePlayPanel.SCREEN_WIDTH/7, GamePlayPanel.SCREEN_HEIGHT/2);
+        startButton.draw(g);
+        g.setColor(Color.black);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        System.out.println("AAA");
+        if(startButton.isIn(e)){
+            startButton.setStateColor(startButton.PRESSED);
+        } else {
+            startButton.setStateColor(startButton.NO_ON);
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if(startButton.isIn(e)){
+            startButton.setStateColor(startButton.ON);
+            GameState.state = GameState.PLAYING;
+        } else {
+            startButton.setStateColor(startButton.NO_ON);
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        if(startButton.isIn(e)){
+            startButton.setStateColor(startButton.ON);
+        } else {
+            startButton.setStateColor(startButton.NO_ON);
+        }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
+}

@@ -1,4 +1,4 @@
-package com.findselfback.Model.Abstract;
+package com.findselfback.Entities;
 
 
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.findselfback.Model.Stage;
+package com.findselfback.Level;
 
 import com.findselfback.View.GamePlayPanel;
 import lombok.Data;

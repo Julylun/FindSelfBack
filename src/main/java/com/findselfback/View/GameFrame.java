@@ -1,6 +1,6 @@
 package com.findselfback.View;
 
-import com.findselfback.Model.PrintColor;
+import com.findselfback.Utilz.PrintColor;
 
 import javax.swing.*;
 

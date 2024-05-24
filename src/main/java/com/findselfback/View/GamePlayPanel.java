@@ -1,21 +1,21 @@
 package com.findselfback.View;
 
-import com.findselfback.Control.KeyHandle;
-import com.findselfback.Model.Player;
-import com.findselfback.Model.PrintColor;
-import com.findselfback.Model.Stage.Level;
-import com.findselfback.Model.Stage.LoadSave;
-import com.findselfback.Model.Stage.MapManager;
+import com.findselfback.Control.InputHandle;
+import com.findselfback.GameState.GameState;
+import com.findselfback.GameState.MenuState;
+import com.findselfback.GameState.Playing;
+import com.findselfback.Utilz.Constant;
+import com.findselfback.Utilz.PrintColor;
 import lombok.Data;
 
 import javax.swing.*;
 import java.awt.*;
-import java.security.Key;
 
 import static java.lang.Thread.sleep;
 class FPSCounter extends Thread{
     private long lastTime;
     private double fps; //could be int or long for integer values
+
 
     public void run(){
         while (true){//lazy me, add a condition for an finishable thread
@@ -37,6 +37,8 @@ class FPSCounter extends Thread{
 @Data
 public class GamePlayPanel extends JPanel implements Runnable{
     private final GameFrame thisGameFrame;
+    private double currentFPS = 0, currentUPS = 0;
+    private boolean isDebugging = true;
 
     //originalTileSize is a default variable of "game's pixel" (block)
     public static final int ORIGINAL_TILE_SIZE = 32;
@@ -52,14 +54,13 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public static final int FPS = 60;
     public static final int UPS = 200;
 
-    private KeyHandle keyHandle = new KeyHandle();
-    private Player player = new Player(this,"src/main/resources/assets/PlayerSheet2.png", keyHandle);
-    private MapManager mapManager;
+    private InputHandle inputHandle = new InputHandle(this);
+
+    private Playing playing = new Playing(this);
+    private MenuState menuState = new MenuState(this);
+
     private Thread gameThread;
-
     private FPSCounter fpsCounter;
-
-
 
     public GamePlayPanel(GameFrame gameFrame){
         //A reference points to GameView, this will be used for many future task
@@ -73,14 +74,14 @@ public class GamePlayPanel extends JPanel implements Runnable{
         fpsCounter = new FPSCounter();
         fpsCounter.start();
 
-        gameFrame.addKeyListener(keyHandle);
+        addMouseMotionListener(inputHandle);
+        addMouseListener(inputHandle);
+        gameFrame.addKeyListener(inputHandle);
         init();
         startGameThread();
     }
     public void init(){
-        mapManager = new MapManager(this);
-        mapManager.autoGetSprite(LoadSave.getSpriteAtlas(LoadSave.MAP_ATLAS_PATH));
-        mapManager.setLevel(LoadSave.STAGE_ONE_PATH);
+
     }
 
     public void startGameThread(){
@@ -96,7 +97,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
         double deltaFrame = 0;
         double deltaUpdate  = 0;
         double lastCheck = System.currentTimeMillis();
-        double previousTime = 0;
+        double previousTime = System.nanoTime();
         double frames = 0, updates = 0;
 
         while (true){
@@ -112,17 +113,18 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 updates++;
                 deltaUpdate--;
             }
-
             if(deltaFrame >= 1) {
                 repaint();
                 frames++;
                 deltaFrame--;
-                fpsCounter.interrupt();
+//                fpsCounter.interrupt();
             }
 
             if(System.currentTimeMillis() - lastCheck >= 1000){
                 lastCheck +=1000;
-                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + frames + " | UPS: " + updates);
+//                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + frames + " | UPS: " + updates);
+                currentFPS = frames;
+                currentUPS = updates;
                 frames = 0;
                 updates = 0;
             }
@@ -142,15 +144,43 @@ public class GamePlayPanel extends JPanel implements Runnable{
     }
     }
 
+    public void drawDebug(Graphics g){
+        if(isDebugging){
+            g.setFont(Constant.DefaultFont.DEFAULT);
+            g.setColor(Color.YELLOW);
+            g.drawString("FPS: "+ currentFPS + " - UPS: " + currentUPS, 0, 20);
+            g.drawString("Sreen size: " + thisGameFrame.getSize(), 0, 80);
+            g.drawString((inputHandle.getLastKeyEvent() == null) ? "Key: ": "Key: " + inputHandle.getLastKeyEvent().paramString(), 0, 40);
+            g.drawString((inputHandle.getLastMouseEvent() == null) ? "Mouse: null": "Mouse: " + inputHandle.getLastMouseEvent().paramString(), 0, 100);
+            g.drawString("Player: " + playing.getPlayer().getStringLocation(), 0, 60);
+            g.setColor(Color.BLACK);
+        }
+    }
     public void update(){
-        player.update();
+        switch (GameState.state){
+            case PLAYING:
+                playing.update();
+                break;
+            case MENU:
+                menuState.update();
+                break;
+        }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        mapManager.draw(g);
-        player.paint(g);
+
+        switch (GameState.state){
+            case PLAYING:
+                playing.draw(g);
+                break;
+            case MENU:
+                menuState.draw(g);
+                break;
+        }
+        drawDebug(g);
+
 
 
     }

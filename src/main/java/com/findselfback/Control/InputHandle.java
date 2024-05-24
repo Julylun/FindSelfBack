@@ -1,0 +1,134 @@
+package com.findselfback.Control;
+
+import com.findselfback.GameState.GameState;
+import com.findselfback.View.GamePlayPanel;
+import lombok.Data;
+
+import java.awt.event.*;
+
+
+@Data
+/**
+ * InputHandle is used to detect player's typing key
+ */
+public class InputHandle implements KeyListener, MouseListener, MouseMotionListener {
+    public boolean upPressed, rightPressed, downPressed, leftPressed;
+    private int lastPressed;
+    private GamePlayPanel thisGamePlayPanel;
+    private KeyEvent lastKeyEvent;
+    private MouseEvent lastMouseEvent;
+    public InputHandle(GamePlayPanel gamePlayPanel){
+        thisGamePlayPanel = gamePlayPanel;
+        upPressed = false;
+        rightPressed = false;
+        downPressed = false;
+        leftPressed = false;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        //When player press key -> set true -> means that key is being press
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            GameState.state = GameState.MENU;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_F1){
+            thisGamePlayPanel.setDebugging(!thisGamePlayPanel.isDebugging());
+        }
+        switch (GameState.state){
+            case PLAYING:
+                thisGamePlayPanel.getPlaying().keyPressed(e);
+                break;
+            case MENU:
+                thisGamePlayPanel.getMenuState().keyPressed(e);
+                break;
+        }
+        lastKeyEvent = e;
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        //When player release key -> set false -> means that key is released
+        switch (GameState.state){
+            case PLAYING:
+                thisGamePlayPanel.getPlaying().keyReleased(e);
+                break;
+            case MENU:
+                thisGamePlayPanel.getMenuState().keyReleased(e);
+                break;
+        }
+        lastKeyEvent = e;
+    }
+    public boolean isNoPressed(){
+        return (upPressed || rightPressed || downPressed || leftPressed) ? false : true;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        switch (GameState.state){
+            case PLAYING:
+                thisGamePlayPanel.getPlaying().mousePressed(e);
+                break;
+            case MENU:
+                thisGamePlayPanel.getMenuState().mousePressed(e);
+                break;
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+            switch (GameState.state){
+                case PLAYING:
+                    thisGamePlayPanel.getPlaying().mouseReleased(e);
+                    break;
+                case MENU:
+                    thisGamePlayPanel.getMenuState().mouseReleased(e);
+                    break;
+            }
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        switch (GameState.state){
+            case PLAYING:
+                thisGamePlayPanel.getPlaying().mouseExited(e);
+                break;
+            case MENU:
+                thisGamePlayPanel.getMenuState().mouseExited(e);
+                break;
+        }
+    }
+
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        lastMouseEvent = e;
+        switch (GameState.state){
+            case PLAYING:
+                break;
+            case MENU:
+                thisGamePlayPanel.getMenuState().mouseMoved(e);
+                break;
+        }
+    }
+}

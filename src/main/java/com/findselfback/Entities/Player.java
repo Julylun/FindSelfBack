@@ -1,42 +1,43 @@
-package com.findselfback.Model;
+package com.findselfback.Entities;
 
-import com.findselfback.Control.KeyHandle;
-import com.findselfback.Model.Abstract.Entity;
-import com.findselfback.Model.Animation.SpriteSheet;
-import com.findselfback.Model.Graphic.Coordinate2D;
-import com.findselfback.Model.Math.Environment;
-import com.findselfback.Model.Stage.Level;
+import com.findselfback.Control.InputHandle;
+import com.findselfback.GameState.Playing;
+import com.findselfback.Utilz.SpriteSheet;
+import com.findselfback.Utilz.Coordinate2D;
+import com.findselfback.Utilz.Environment;
 import com.findselfback.View.GamePlayPanel;
 import lombok.Data;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.Vector;
 
-import static com.findselfback.Model.Constant.Animation.*;
+import static com.findselfback.Utilz.Constant.Animation.*;
 
-
+@Data
 public class Player extends Entity {
-    private KeyHandle thisKeyHandle;
-    private GamePlayPanel thisGamePlayPanel;
+    private InputHandle thisInputHandle;
+    private Playing thisPlaying;
     private SpriteSheet sprite;
     private boolean isMoving, isInAir = false;
+
+    private boolean moveLeft = false, moveRight = false, moveTop = false, moveBot = false;
+    private boolean isFlip = false;
     private int direction;
     private float gravity = (float)(0.04f * GamePlayPanel.SCALE);
     private float airSpeed = 0;
-    private float jumpSpeed = (float)(-2.2f * GamePlayPanel.SCALE);
+    private float jumpSpeed = (float)(-2.3f * GamePlayPanel.SCALE);
     private float fallingSpeedAfterCollision = (float) (0.5f * GamePlayPanel.SCALE);
 
 
 
-    public Player(GamePlayPanel gamePlayPanel, String spritePath, KeyHandle keyHandle){
-        thisGamePlayPanel = gamePlayPanel;
-        thisKeyHandle = keyHandle;
+    public Player(Playing playing, String spritePath, InputHandle inputHandle){
+        thisPlaying = playing;
+        thisInputHandle = inputHandle;
         init();
 
-        this.sprite = new SpriteSheet(spritePath, thisGamePlayPanel.ORIGINAL_TILE_SIZE, thisGamePlayPanel.ORIGINAL_TILE_SIZE);
+        this.sprite = new SpriteSheet(spritePath, GamePlayPanel.ORIGINAL_TILE_SIZE, GamePlayPanel.ORIGINAL_TILE_SIZE);
         loadAnimation();
 
 
@@ -49,10 +50,9 @@ public class Player extends Entity {
         this.y = 200;
         hitBox.x = (int)this.x;
         hitBox.y = (int)this.y;
-        hitBox.width = thisGamePlayPanel.TILE_SIZE*2/3;
-        hitBox.height = thisGamePlayPanel.TILE_SIZE;
-        this.speed = 1f;
-
+        hitBox.width = GamePlayPanel.TILE_SIZE*2/3;
+        hitBox.height = GamePlayPanel.TILE_SIZE;
+        this.speed = 1.5f; //map editor
     }
 
     private void drawHitBox(Graphics g,boolean isEnable){
@@ -72,7 +72,7 @@ public class Player extends Entity {
 
     private void updateXPos(float xSpeed){
         if(Environment.canMoveHere(x+xSpeed,y, hitBox.width, hitBox.height,
-                thisGamePlayPanel.getMapManager().getLevel().getLevelData())
+                thisPlaying.getMapManager().getLevel().getLevelData())
         ){
             x+= xSpeed;
         } else {
@@ -116,28 +116,30 @@ public class Player extends Entity {
     public void update() {
         float xSpeed = 0, ySpeed = 0;
 
-        if(!isInAir && !Environment.isOnGround(hitBox,thisGamePlayPanel.getMapManager().getLevel().getLevelData())){
+        if(!isInAir && !Environment.isOnGround(hitBox,thisPlaying.getMapManager().getLevel().getLevelData())){
             isInAir = true;
         }
 
-        if(!thisKeyHandle.isNoPressed()){
-            if(thisKeyHandle.upPressed && !thisKeyHandle.downPressed){
+        if(!thisPlaying.isNoPressed()){
+            if(thisPlaying.upPressed && !thisPlaying.downPressed){
                 jump();
             }
-            if(!thisKeyHandle.upPressed && thisKeyHandle.downPressed){
+            if(!thisPlaying.upPressed && thisPlaying.downPressed){
                 ySpeed = speed;
             }
-            if(thisKeyHandle.leftPressed && !thisKeyHandle.rightPressed){
+            if(thisPlaying.leftPressed && !thisPlaying.rightPressed){
                 xSpeed = -speed;
+                isFlip = true;
                 direction = 3;
             }
-            if(thisKeyHandle.rightPressed && !thisKeyHandle.leftPressed){
+            if(thisPlaying.rightPressed && !thisPlaying.leftPressed){
                 xSpeed = speed;
+                isFlip = false;
                 direction = 1;
             }
         }
         if(isInAir){
-            if(Environment.canMoveHere(x,y+airSpeed,hitBox.width,hitBox.height,thisGamePlayPanel.getMapManager().getLevel().getLevelData())){
+            if(Environment.canMoveHere(x,y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
                 y += airSpeed;
                 airSpeed += gravity;
                 updateXPos(xSpeed);
@@ -158,7 +160,7 @@ public class Player extends Entity {
 
 
         if(Environment.canMoveHere(x,y+ySpeed, hitBox.width, hitBox.height,
-                thisGamePlayPanel.getMapManager().getLevel().getLevelData())
+                thisPlaying.getMapManager().getLevel().getLevelData())
         ){
             y+= ySpeed;
         }
@@ -171,32 +173,35 @@ public class Player extends Entity {
         Graphics2D graphics2D = (Graphics2D) g.create();
 //                PrintColor.debug(PrintColor.CYAN_BRIGHT, "Player", "update", "x: " + x + " | y: " + y);
 
-        if (!thisKeyHandle.isNoPressed()) {
-            if (thisKeyHandle.leftPressed && !thisKeyHandle.rightPressed) {
-                sprite.nextFrame(true);
+        if (!thisPlaying.isNoPressed()) {
+            if (thisPlaying.leftPressed && !thisPlaying.rightPressed) {
+                sprite.nextFrame(false);
                 sprite.setCurrentSprite(RUNNING);
             }
-            if (thisKeyHandle.rightPressed && !thisKeyHandle.leftPressed) {
+            if (thisPlaying.rightPressed && !thisPlaying.leftPressed) {
                 sprite.setCurrentSprite(RUNNING);
                 sprite.nextFrame(false);
             }
-            if(thisKeyHandle.leftPressed && thisKeyHandle.rightPressed){
+            if(thisPlaying.leftPressed && thisPlaying.rightPressed){
                 sprite.setCurrentSprite(IDLE);
-                sprite.nextFrame(thisKeyHandle.getLastPressed() == KeyEvent.VK_D);
+                sprite.nextFrame(thisInputHandle.getLastPressed() == KeyEvent.VK_D);
             }
         } else {
             sprite.setCurrentSprite(IDLE);
-            if (thisKeyHandle.getLastPressed() == KeyEvent.VK_A) {
-//                PrintColor.debug(PrintColor.CYAN_BRIGHT, "Player", "update", "last key = " + thisKeyHandle.getLastPressed());
-                sprite.nextFrame(true);
+            if (thisPlaying.lastPressed == KeyEvent.VK_A) {
+                isFlip = true;
+                sprite.nextFrame(false);
             } else {
-//                PrintColor.debug(PrintColor.RED_BRIGHT, "Player", "update", "last key = " + thisKeyHandle.getLastPressed());
+                isFlip = false;
                 sprite.nextFrame(false);
             }
         }
 
+        graphics2D.drawImage(sprite.getCurrentSprite(), ((isFlip) ?(int)(x + GamePlayPanel.TILE_SIZE):(int)x), (int)y, (int)(sprite.getTileWidth()*GamePlayPanel.SCALE)*((isFlip) ? -1 : 1), (int)(sprite.getTileHeight()*GamePlayPanel.SCALE), null);
+        drawHitBox(g,thisPlaying.getGamePlayPanel().isDebugging());
+    }
 
-        graphics2D.drawImage(sprite.getCurrentSprite(), (int)x, (int)y, (int)(sprite.getTileWidth()*thisGamePlayPanel.SCALE), (int)(sprite.getTileHeight()*thisGamePlayPanel.SCALE), null);
-        drawHitBox(g,true);
+    public String getStringLocation(){
+        return "x = " + x + " | y = " + y;
     }
 }
