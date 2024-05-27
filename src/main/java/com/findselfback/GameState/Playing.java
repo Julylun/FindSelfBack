@@ -136,6 +136,13 @@ public class Playing extends State implements Statemethod {
     @Override
     public void keyReleased(KeyEvent e) {
         int eventCode = e.getKeyCode();
+        if(eventCode == KeyEvent.VK_F12){
+            if(!gamePlayPanel.isMapEditingMode())
+            {
+                gamePlayPanel.editingModeInit();
+            }
+            gamePlayPanel.setMapEditingMode();
+        }
         if(eventCode == KeyEvent.VK_F5){
             gamePlayPanel.setPlaying(new Playing(gamePlayPanel));
 //            gamePlayPanel.isNext = true;

@@ -11,12 +11,13 @@ import java.awt.event.*;
 /**
  * InputHandle is used to detect player's typing key
  */
-public class InputHandle implements KeyListener, MouseListener, MouseMotionListener {
+public class InputHandle implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     public boolean upPressed, rightPressed, downPressed, leftPressed;
     private int lastPressed;
     private GamePlayPanel thisGamePlayPanel;
     private KeyEvent lastKeyEvent;
-    private MouseEvent lastMouseEvent;
+    private MouseEvent lastMouseEvent, lastClickEvent;
+    private MouseWheelEvent lastMouseWheelEvent;
     public InputHandle(GamePlayPanel gamePlayPanel){
         thisGamePlayPanel = gamePlayPanel;
         upPressed = false;
@@ -53,6 +54,18 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
     @Override
     public void keyReleased(KeyEvent e) {
         //When player release key -> set false -> means that key is released
+        if(e.getKeyCode() == KeyEvent.VK_F11){
+            thisGamePlayPanel.isMapEnable = !thisGamePlayPanel.isMapEnable;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_F6){
+            thisGamePlayPanel.isChooseTileEnable = !thisGamePlayPanel.isChooseTileEnable;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_F2){
+            thisGamePlayPanel.isSaving = true;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_DELETE){
+            thisGamePlayPanel.deleteAllMap();
+        }
         switch (GameState.state){
             case PLAYING:
                 thisGamePlayPanel.getPlaying().keyReleased(e);
@@ -74,6 +87,7 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mousePressed(MouseEvent e) {
+        thisGamePlayPanel.isPressing = true;
         switch (GameState.state){
             case PLAYING:
                 thisGamePlayPanel.getPlaying().mousePressed(e);
@@ -86,6 +100,7 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        thisGamePlayPanel.isPressing = false;
             switch (GameState.state){
                 case PLAYING:
                     thisGamePlayPanel.getPlaying().mouseReleased(e);
@@ -94,7 +109,7 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
                     thisGamePlayPanel.getMenuState().mouseReleased(e);
                     break;
             }
-
+            lastClickEvent = e;
     }
 
     @Override
@@ -130,5 +145,16 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
                 thisGamePlayPanel.getMenuState().mouseMoved(e);
                 break;
         }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+            if(e.getWheelRotation() < 0 && thisGamePlayPanel.currentTileEditingMode > -1){
+                thisGamePlayPanel.currentTileEditingMode -= 1;
+            } else {
+                thisGamePlayPanel.currentTileEditingMode +=1;
+                if(thisGamePlayPanel.currentTileEditingMode > 255) thisGamePlayPanel.currentTileEditingMode = -1;
+            }
+
     }
 }

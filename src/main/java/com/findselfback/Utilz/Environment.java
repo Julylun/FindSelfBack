@@ -30,7 +30,7 @@ public class Environment {
 
         int tileValue = levelData[(int)rowIndex][(int)columnIndex];
 
-        return tileValue != 11;
+        return (tileValue <= 47 && tileValue != 11);
     }
 
     public static boolean isOnGround(Rectangle2D.Float hitBox, int[][] levelData){

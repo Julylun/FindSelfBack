@@ -53,12 +53,29 @@ public class MapManager {
         for(int rowIndex = 0; rowIndex < row; rowIndex++){
             for(int columnIndex = 0; columnIndex < column; columnIndex++){
                 spriteMap[spriteIndex] = spriteSheet.getSubimage(columnIndex*tileWidth,
-                            rowIndex*tileHeight,
-                            tileWidth,
-                            tileHeight);
+                        rowIndex*tileHeight,
+                        tileWidth,
+                        tileHeight);
                 spriteIndex++;
             }
         }
+    }
+
+    public static BufferedImage[] _autoGetSprite(BufferedImage spriteSheet, int tileWidth, int tileHeight){
+        int column = spriteSheet.getWidth()/tileWidth;
+        int row = spriteSheet.getHeight()/tileHeight;
+        BufferedImage[] _spriteMap = new BufferedImage[column*row];
+        int spriteIndex = 0;
+        for(int rowIndex = 0; rowIndex < row; rowIndex++){
+            for(int columnIndex = 0; columnIndex < column; columnIndex++){
+                _spriteMap[spriteIndex] = spriteSheet.getSubimage(columnIndex*tileWidth,
+                        rowIndex*tileHeight,
+                        tileWidth,
+                        tileHeight);
+                spriteIndex++;
+            }
+        }
+        return _spriteMap;
     }
 
     /**
