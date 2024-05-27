@@ -15,5 +15,5 @@ public abstract class Entity {
 
     public abstract void update();
     public abstract void eventHandle();
-    public abstract void paint(Graphics g);
+    public abstract void paint(Graphics g, int xOffset);
 }

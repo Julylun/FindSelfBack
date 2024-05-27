@@ -70,13 +70,13 @@ public class MapManager {
         level.setLevelData(LoadSave.imageToLevelData(LoadSave.STAGE_ONE_PATH));
     }
 
-    public void draw(Graphics g){
+    public void draw(Graphics g, int xOffset){
         Graphics2D graphics2D = (Graphics2D) g.create();
         for(int rowIndex = 0; rowIndex < GamePlayPanel.MAX_SCREEN_ROW; rowIndex++){
-            for(int columnIndex = 0; columnIndex < GamePlayPanel.MAX_SCREEN_COLUMN; columnIndex++){
+            for(int columnIndex = 0; columnIndex < level.levelData[0].length; columnIndex++){
                 graphics2D.drawImage(
-                        spriteMap[level.getSpriteMapIndex(columnIndex,rowIndex)],
-                        columnIndex*GamePlayPanel.TILE_SIZE,
+                        spriteMap[level.getSpriteMapIndex(rowIndex,columnIndex)],
+                        columnIndex*GamePlayPanel.TILE_SIZE - xOffset,
                         rowIndex*GamePlayPanel.TILE_SIZE,
                         GamePlayPanel.TILE_SIZE,
                         GamePlayPanel.TILE_SIZE,

@@ -30,12 +30,12 @@ public class LoadSave {
 
     public static int[][] imageToLevelData(BufferedImage mapImage){
         if(mapImage.getWidth() == 0 || mapImage.getHeight() == 0) return null;
-        int mapData[][] = new int[mapImage.getWidth()][mapImage.getHeight()];
+        int mapData[][] = new int[mapImage.getHeight()][mapImage.getWidth()];
         for(int rowIndex = 0; rowIndex < mapImage.getHeight(); rowIndex++){
             for(int columnIndex = 0; columnIndex < mapImage.getWidth(); columnIndex++){
                 Color pointColor = new Color(mapImage.getRGB(columnIndex,rowIndex));
                 System.out.print(pointColor.getRed() + " ");
-                mapData[columnIndex][rowIndex] = pointColor.getRed();
+                mapData[rowIndex][columnIndex] = pointColor.getRed();
             }
             System.out.println();
         }

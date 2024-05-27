@@ -149,10 +149,11 @@ public class GamePlayPanel extends JPanel implements Runnable{
             g.setFont(Constant.DefaultFont.DEFAULT);
             g.setColor(Color.YELLOW);
             g.drawString("FPS: "+ currentFPS + " - UPS: " + currentUPS, 0, 20);
-            g.drawString("Sreen size: " + thisGameFrame.getSize(), 0, 80);
             g.drawString((inputHandle.getLastKeyEvent() == null) ? "Key: ": "Key: " + inputHandle.getLastKeyEvent().paramString(), 0, 40);
-            g.drawString((inputHandle.getLastMouseEvent() == null) ? "Mouse: null": "Mouse: " + inputHandle.getLastMouseEvent().paramString(), 0, 100);
             g.drawString("Player: " + playing.getPlayer().getStringLocation(), 0, 60);
+            g.drawString("Sreen size: " + thisGameFrame.getSize(), 0, 80);
+            g.drawString((inputHandle.getLastMouseEvent() == null) ? "Mouse: null": "Mouse: " + inputHandle.getLastMouseEvent().paramString(), 0, 100);
+            g.drawString(playing.getOffsetDebuggingString(),0,120);
             g.setColor(Color.BLACK);
         }
     }

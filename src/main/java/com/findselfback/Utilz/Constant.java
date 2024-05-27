@@ -14,6 +14,7 @@ public class Constant {
         public static final int WALKING = 1;
         public static final int RUNNING = 2;
         public static final int ATTACKING = 3;
+        public static final int FALLING = 4;
 
     }
     public static class UI {

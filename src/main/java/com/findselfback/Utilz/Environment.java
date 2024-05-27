@@ -21,13 +21,14 @@ public class Environment {
     }
 
     public static boolean isSolid(float x, float y, int[][] levelData){
-        if(x >= GamePlayPanel.SCREEN_WIDTH || x <= 0 || y >= GamePlayPanel.SCREEN_HEIGHT || y <= 0){
+        int maxWidth = levelData[0].length * GamePlayPanel.TILE_SIZE;
+        if(x >= maxWidth || x <= 0 || y >= GamePlayPanel.SCREEN_HEIGHT || y <= 0){
             return true;
         }
         float columnIndex = x / GamePlayPanel.TILE_SIZE;
         float rowIndex = y / GamePlayPanel.TILE_SIZE;
 
-        int tileValue = levelData[(int)columnIndex][(int)rowIndex];
+        int tileValue = levelData[(int)rowIndex][(int)columnIndex];
 
         return tileValue != 11;
     }
