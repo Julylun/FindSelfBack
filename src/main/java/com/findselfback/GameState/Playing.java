@@ -136,6 +136,10 @@ public class Playing extends State implements Statemethod {
     @Override
     public void keyReleased(KeyEvent e) {
         int eventCode = e.getKeyCode();
+        if(eventCode == KeyEvent.VK_F5){
+            gamePlayPanel.setPlaying(new Playing(gamePlayPanel));
+//            gamePlayPanel.isNext = true;
+        }
         if(eventCode == KeyEvent.VK_W){ //W button
             upPressed = false;
         }

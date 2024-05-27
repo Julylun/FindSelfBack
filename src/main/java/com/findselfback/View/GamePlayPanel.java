@@ -54,6 +54,8 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public static final int FPS = 60;
     public static final int UPS = 200;
 
+    public boolean isNext = false;
+
     private InputHandle inputHandle = new InputHandle(this);
 
     private Playing playing = new Playing(this);
@@ -112,6 +114,10 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 update();
                 updates++;
                 deltaUpdate--;
+            }
+            if(isNext){
+                isNext = false;
+                continue;
             }
             if(deltaFrame >= 1) {
                 repaint();
@@ -184,5 +190,13 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
 
 
+    }
+
+    public boolean isNext() {
+        return isNext;
+    }
+
+    public void setNext(boolean next) {
+        isNext = next;
     }
 }
