@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.TreeSet;
 
 @Data
 /**
@@ -91,14 +92,18 @@ public class MapManager {
         Graphics2D graphics2D = (Graphics2D) g.create();
         for(int rowIndex = 0; rowIndex < GamePlayPanel.MAX_SCREEN_ROW; rowIndex++){
             for(int columnIndex = 0; columnIndex < level.levelData[0].length; columnIndex++){
-                graphics2D.drawImage(
-                        spriteMap[level.getSpriteMapIndex(rowIndex,columnIndex)],
-                        columnIndex*GamePlayPanel.TILE_SIZE - xOffset,
-                        rowIndex*GamePlayPanel.TILE_SIZE,
-                        GamePlayPanel.TILE_SIZE,
-                        GamePlayPanel.TILE_SIZE,
-                        null
-                );
+                LayerTile currentTileList = level.getSpriteMapIndex(rowIndex,columnIndex);
+                TreeSet<Tile> tileTreeSet = currentTileList.getTileTreeSet();
+                for(Tile tile: tileTreeSet){
+                    graphics2D.drawImage(
+                            spriteMap[tile.value],
+                            columnIndex*GamePlayPanel.TILE_SIZE - xOffset,
+                            rowIndex*GamePlayPanel.TILE_SIZE,
+                            GamePlayPanel.TILE_SIZE,
+                            GamePlayPanel.TILE_SIZE,
+                            null
+                    );
+                }
             }
         }
     }

@@ -1,13 +1,16 @@
 package com.findselfback.Utilz;
 
+import com.findselfback.Level.LayerTile;
+import com.findselfback.Level.Tile;
 import com.findselfback.View.GamePlayPanel;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.TreeSet;
 
 public class Environment {
 
-    public static boolean canMoveHere(float x, float y, float width, float height, int[][] levelData){
+    public static boolean canMoveHere(float x, float y, float width, float height, LayerTile[][] levelData){
 
         if(
                 isSolid(x,y,levelData)
@@ -20,7 +23,15 @@ public class Environment {
         return true;
     }
 
-    public static boolean isSolid(float x, float y, int[][] levelData){
+    /**
+     * Đưa vào một vị trí (x,y) và một mảng gồm các phần tử tile map, xác định xem
+     * có thể di chuyển vào đó không
+     * @param x
+     * @param y
+     * @param levelData
+     * @return
+     */
+    public static boolean isSolid(float x, float y, LayerTile[][] levelData){
         int maxWidth = levelData[0].length * GamePlayPanel.TILE_SIZE;
         if(x >= maxWidth || x <= 0 || y >= GamePlayPanel.SCREEN_HEIGHT || y <= 0){
             return true;
@@ -28,12 +39,15 @@ public class Environment {
         float columnIndex = x / GamePlayPanel.TILE_SIZE;
         float rowIndex = y / GamePlayPanel.TILE_SIZE;
 
-        int tileValue = levelData[(int)rowIndex][(int)columnIndex];
-
-        return (tileValue <= 47 && tileValue != 11);
+        TreeSet<Tile> tileSet = levelData[(int)rowIndex][(int)columnIndex].getTileTreeSet();
+        for(Tile tile: tileSet){
+//            System.out.println(tile.value);
+            if((tile.value <= 47 && tile.value != 11)) return true;
+        }
+        return false;
     }
 
-    public static boolean isOnGround(Rectangle2D.Float hitBox, int[][] levelData){
+    public static boolean isOnGround(Rectangle2D.Float hitBox, LayerTile[][] levelData){
         if(isSolid(hitBox.x, hitBox.y + hitBox.height +1, levelData) || isSolid(hitBox.x + hitBox.width + 1, hitBox.y, levelData))
             return true;
         return false;

@@ -24,18 +24,20 @@ public class LoadSave {
         return bufferedImage;
     }
 
-    public static int[][] imageToLevelData(String filePath){
+    public static LayerTile[][] imageToLevelData(String filePath){
         return imageToLevelData(getSpriteAtlas(filePath));
     }
 
-    public static int[][] imageToLevelData(BufferedImage mapImage){
+    public static LayerTile[][] imageToLevelData(BufferedImage mapImage){
         if(mapImage.getWidth() == 0 || mapImage.getHeight() == 0) return null;
-        int mapData[][] = new int[mapImage.getHeight()][mapImage.getWidth()];
+        LayerTile[][] mapData = new LayerTile[mapImage.getHeight()][mapImage.getWidth()];
         for(int rowIndex = 0; rowIndex < mapImage.getHeight(); rowIndex++){
             for(int columnIndex = 0; columnIndex < mapImage.getWidth(); columnIndex++){
                 Color pointColor = new Color(mapImage.getRGB(columnIndex,rowIndex));
                 System.out.print(pointColor.getRed() + " ");
-                mapData[rowIndex][columnIndex] = pointColor.getRed();
+                mapData[rowIndex][columnIndex] = new LayerTile();
+                mapData[rowIndex][columnIndex].add(pointColor.getRed(),0);
+//                mapData[rowIndex][columnIndex] = pointColor.getRed();
             }
             System.out.println();
         }

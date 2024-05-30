@@ -4,8 +4,10 @@ import com.findselfback.Control.InputHandle;
 import com.findselfback.GameState.GameState;
 import com.findselfback.GameState.MenuState;
 import com.findselfback.GameState.Playing;
+import com.findselfback.Level.LayerTile;
 import com.findselfback.Level.LoadSave;
 import com.findselfback.Level.MapManager;
+import com.findselfback.Level.Tile;
 import com.findselfback.Utilz.Constant;
 import com.findselfback.Utilz.PrintColor;
 import com.thoughtworks.qdox.model.expression.Or;
@@ -148,12 +150,13 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 repaint();
                 frames++;
                 deltaFrame--;
-//                fpsCounter.interrupt();
+                fpsCounter.interrupt();
             }
 
             if(System.currentTimeMillis() - lastCheck >= 1000){
                 lastCheck +=1000;
 //                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + frames + " | UPS: " + updates);
+                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + fpsCounter.fps());
                 currentFPS = frames;
                 currentUPS = updates;
                 frames = 0;
@@ -203,6 +206,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 g.setColor(Color.BLUE);
                 if(!isChooseTileEnable){
                     g.drawRect(mouseCol*TILE_SIZE - (playing.getxLevelOffset()%TILE_SIZE) -1, mouseRow*TILE_SIZE-1,TILE_SIZE+2,TILE_SIZE+2);
+                    g.drawString("Number of depth: " + playing.getMapManager().getLevel().getLevelData()[mouseRow][realMouseCol].getTileTreeSet().size(), mouseCol*TILE_SIZE - (playing.getxLevelOffset()%TILE_SIZE) -1, mouseRow*TILE_SIZE-1);
                     if(currentTileEditingMode!=-1){
                         g.drawImage(tileMapForMapEditing[currentTileEditingMode],
                                 mouseCol*TILE_SIZE - (playing.getxLevelOffset()%TILE_SIZE),mouseRow*TILE_SIZE,TILE_SIZE,TILE_SIZE,null);
@@ -213,14 +217,15 @@ public class GamePlayPanel extends JPanel implements Runnable{
                     g.drawImage(editingMap,0,0,editingMap.getWidth()*10,editingMap.getHeight()*10,null);
                 }
                 if(isPressing && !isChooseTileEnable){
-                    MouseEvent clickEnvent = inputHandle.getLastClickEvent();
-                    if(clickEnvent.getButton() == 3){
-                        playing.getPlayer().setX(clickEnvent.getX());
-                        playing.getPlayer().setY(clickEnvent.getY());
+                    MouseEvent clickEvent = inputHandle.getLastClickEvent();
+                    if(clickEvent.getButton() == 3){
+                        playing.getPlayer().setX(clickEvent.getX());
+                        playing.getPlayer().setY(clickEvent.getY());
                     } else
                     if(currentTileEditingMode != -1){
                         editingMap.setRGB(realMouseCol,mouseRow,new Color(currentTileEditingMode,0,0).getRGB());
-                        playing.getMapManager().getLevel().getLevelData()[mouseRow][realMouseCol] = currentTileEditingMode;
+                        LayerTile layerTileAtCursor = playing.getMapManager().getLevel().getLevelData()[mouseRow][realMouseCol];
+                        layerTileAtCursor.add(currentTileEditingMode,layerTileAtCursor.lastDepth()+1);
                     }
 
                 }
@@ -304,7 +309,9 @@ public class GamePlayPanel extends JPanel implements Runnable{
         for(int i = 0; i < editingMap.getHeight(); i++){
             for(int j = 0; j < editingMap.getWidth(); j++){
                 editingMap.setRGB(j,i,new Color(11,0,0).getRGB());
-                playing.getMapManager().getLevel().getLevelData()[i][j] = 11;
+                LayerTile layerTile = playing.getMapManager().getLevel().getLevelData()[i][j];
+                layerTile.removeAll();
+                layerTile.add(11,0);
             }
         }
 
