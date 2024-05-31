@@ -27,7 +27,7 @@ public class Player extends Entity {
     private int direction;
     private float gravity = (float)(0.02f * GamePlayPanel.SCALE);
     private float airSpeed = 0;
-    private float jumpSpeed = (float)(-2.3f * GamePlayPanel.SCALE);
+    private float jumpSpeed = (float)(-1.3f * GamePlayPanel.SCALE);
     private float fallingSpeedAfterCollision = (float) (0.5f * GamePlayPanel.SCALE);
 
 

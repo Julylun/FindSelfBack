@@ -9,6 +9,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class Constant {
+    public static class EnvironmentValue {
+        public static float gravity = (float)(0.02f * GamePlayPanel.SCALE);
+    }
     public static class Animation{
         public static final int IDLE = 0;
         public static final int WALKING = 1;
@@ -16,6 +19,7 @@ public class Constant {
         public static final int ATTACKING = 3;
         public static final int FALLING = 4;
 
+        public static final int SITTING = 5;
     }
     public static class UI {
         public static class MenuSize {

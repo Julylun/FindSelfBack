@@ -57,6 +57,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
     private boolean mapEditingMode = false;
     public int currentTileEditingMode = 0;
+
     public boolean isPressing = false;
     public boolean isMapEnable = false;
     public boolean isChooseTileEnable = false;

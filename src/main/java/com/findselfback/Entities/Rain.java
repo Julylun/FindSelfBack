@@ -17,6 +17,7 @@ public class Rain extends Entity{
     public static final int ALIVE = 0;
     public static final int DEAD = 1;
     private boolean isRenew = false;
+    private final float acceleration = 0.01f;
     private boolean isCanBeDead;
     private Playing thisPlaying;
     public Rain(Playing playing){
@@ -50,6 +51,7 @@ public class Rain extends Entity{
     @Override
     public void update() {
         if(spriteSheet.getCurrentSpriteKey() == ALIVE){
+            speed += acceleration;
             if(y > GamePlayPanel.SCREEN_HEIGHT) {renew(); return;}
             if(!isCanBeDead || Environment.canMoveHere(x,y,GamePlayPanel.ORIGINAL_TILE_SIZE/3,GamePlayPanel.ORIGINAL_TILE_SIZE,thisPlaying.getMapManager().getLevel().getLevelData())){
                 y += speed;

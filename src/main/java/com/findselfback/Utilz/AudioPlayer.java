@@ -11,7 +11,7 @@ import java.io.IOException;
 
 @Data
 public class AudioPlayer {
-    private static final String[] environmentAudioName = {"rainAudio.mp3"};
+    private static final String[] environmentAudioName = {"HowlingWind.mp3"};
 
     private Player[] backgroundMusicList, effectSoundList;
     private MP3Player[] environmentAudioList;

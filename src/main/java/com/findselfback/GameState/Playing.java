@@ -2,7 +2,9 @@ package com.findselfback.GameState;
 
 import com.findselfback.Control.Statemethod;
 import com.findselfback.Entities.Player;
+import com.findselfback.Entities.Rabbit;
 import com.findselfback.Entities.Rain;
+import com.findselfback.Entities.Snow;
 import com.findselfback.Level.LoadSave;
 import com.findselfback.Level.MapManager;
 import com.findselfback.Utilz.AudioPlayer;
@@ -16,11 +18,16 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Playing extends State implements Statemethod {
     private Player player;
-    private Rain[] rainList;
+    private Rabbit[] rabbitList;
+    private Snow[] snowList;
+    public float windSpeed;
+    public int delayWindTime = 400;
+    public int currentWindTick = 0;
     private MapManager mapManager;
     private AudioPlayer audioPlayer;
     public boolean upPressed = false, rightPressed = false, downPressed = false, leftPressed = false;
@@ -46,22 +53,32 @@ public class Playing extends State implements Statemethod {
     public Playing(GamePlayPanel gamePlayPanel) {
         super(gamePlayPanel);
         init();
-        audioPlayer.getEnvironmentAudioList()[0].setLoop(true);
-        audioPlayer.getEnvironmentAudioList()[0].play();
+
     }
 
     public void init(){
-        player = new Player(this,"src/main/resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
-        rainList = new Rain[100];
-        for(int i = 0; i < rainList.length; i++){
-            rainList[i] = new Rain(this);
-        }
-
-        audioPlayer = new AudioPlayer();
-
         mapManager = new MapManager(gamePlayPanel);
         mapManager.autoGetSprite(LoadSave.getSpriteAtlas(LoadSave.MAP_ATLAS_PATH));
         mapManager.setLevel(LoadSave.STAGE_ONE_PATH);
+
+        player = new Player(this,"src/main/resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
+
+        snowList = new Snow[50];
+        rabbitList = new Rabbit[10];
+        for(int i = 0; i < rabbitList.length; i++){
+            rabbitList[i] = new Rabbit(this, "src/main/resources/assets/RabbitSpriteSheet.png");
+        }
+
+
+        windSpeed = (float) ThreadLocalRandom.current().nextDouble(-1,1);
+
+        for(int i = 0; i < snowList.length; i++){
+            snowList[i] = new Snow(this);
+        }
+
+
+
+
 
         try {
             backgroundImage = ImageIO.read(new File("src/main/resources/background/background.png"));
@@ -80,6 +97,9 @@ public class Playing extends State implements Statemethod {
         maxTileWidth = totalTileWidth  - GamePlayPanel.MAX_SCREEN_COLUMN;
         maxOffsetWidth = maxTileWidth * GamePlayPanel.TILE_SIZE;
 
+        audioPlayer = new AudioPlayer();
+        audioPlayer.getEnvironmentAudioList()[0].setLoop(true);
+        audioPlayer.getEnvironmentAudioList()[0].play();
 
     }
 
@@ -125,10 +145,23 @@ public class Playing extends State implements Statemethod {
     }
     @Override
     public void update() {
+        if(currentWindTick < delayWindTime){
+            currentWindTick+=1;
+        } else {
+            currentWindTick = 0;
+            delayWindTime = ThreadLocalRandom.current().nextInt(100,1000);
+            windSpeed = (float) ThreadLocalRandom.current().nextDouble(-1,1);
+        }
         mapManager.update();
+        for(int i = 0; i < rabbitList.length; i++){
+            rabbitList[i].update();
+        }
         player.update();
-        for(Rain rain: rainList){
-            rain.update();
+//        for(Rain rain: rainList){
+//            rain.update();
+//        }
+        for(Snow snow: snowList){
+            snow.update();
         }
         checkCloseToBorder();
     }
@@ -137,9 +170,16 @@ public class Playing extends State implements Statemethod {
     public void draw(Graphics g) {
         backgroundDraw(g);
         mapManager.draw(g, xLevelOffset);
+        for(int i = 0; i < rabbitList.length; i++){
+            rabbitList[i].paint(g,xLevelOffset);
+        }
+
         player.paint(g,xLevelOffset);
-        for(Rain rain: rainList){
-            rain.paint(g,xLevelOffset);
+//        for(Rain rain: rainList){
+//            rain.paint(g,xLevelOffset);
+//        }
+        for(Snow snow: snowList){
+            snow.paint(g,xLevelOffset);
         }
     }
 
