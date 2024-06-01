@@ -30,7 +30,7 @@ public class Constant {
             public static final Font FVF_FERNANDO;
             static {
                 try {
-                    FVF_FERNANDO = Font.createFont(Font.TRUETYPE_FONT,new File("src/main/resources/font/FVF-Fernando.ttf")).deriveFont(32f);
+                    FVF_FERNANDO = Font.createFont(Font.TRUETYPE_FONT,new File("Resources/font/FVF-Fernando.ttf")).deriveFont(32f);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (FontFormatException e) {

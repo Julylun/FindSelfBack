@@ -61,12 +61,12 @@ public class Playing extends State implements Statemethod {
         mapManager.autoGetSprite(LoadSave.getSpriteAtlas(LoadSave.MAP_ATLAS_PATH));
         mapManager.setLevel(LoadSave.STAGE_ONE_PATH);
 
-        player = new Player(this,"src/main/resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
+        player = new Player(this,"Resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
 
         snowList = new Snow[50];
         rabbitList = new Rabbit[10];
         for(int i = 0; i < rabbitList.length; i++){
-            rabbitList[i] = new Rabbit(this, "src/main/resources/assets/RabbitSpriteSheet.png");
+            rabbitList[i] = new Rabbit(this, "Resources/assets/RabbitSpriteSheet.png");
         }
 
 
@@ -81,13 +81,13 @@ public class Playing extends State implements Statemethod {
 
 
         try {
-            backgroundImage = ImageIO.read(new File("src/main/resources/background/background.png"));
-            backgroundLayer2 = ImageIO.read(new File("src/main/resources/background/backgroundLayer2.png"));
-            backgroundLayer3 = ImageIO.read(new File("src/main/resources/background/backgroundLayer3.png"));
-            backgroundLayer4 = ImageIO.read(new File("src/main/resources/background/backgroundLayer4.png"));
-            backgroundLayer5 = ImageIO.read(new File("src/main/resources/background/backgroundLayer5.png"));
-            backgroundLayer6 = ImageIO.read(new File("src/main/resources/background/backgroundLayer6.png"));
-            backgroundLayer7 = ImageIO.read(new File("src/main/resources/background/backgroundLayer7.png"));
+            backgroundImage = ImageIO.read(new File("Resources/background/background.png"));
+            backgroundLayer2 = ImageIO.read(new File("Resources/background/backgroundLayer2.png"));
+            backgroundLayer3 = ImageIO.read(new File("Resources/background/backgroundLayer3.png"));
+            backgroundLayer4 = ImageIO.read(new File("Resources/background/backgroundLayer4.png"));
+            backgroundLayer5 = ImageIO.read(new File("Resources/background/backgroundLayer5.png"));
+            backgroundLayer6 = ImageIO.read(new File("Resources/background/backgroundLayer6.png"));
+            backgroundLayer7 = ImageIO.read(new File("Resources/background/backgroundLayer7.png"));
 
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -49,9 +49,9 @@ public class Player extends Entity {
         this.x = 200;
         this.y = 200;
         hitBox.x = (int)this.x;
-        hitBox.y = (int)this.y;
+        hitBox.y = (int)this.y + GamePlayPanel.TILE_SIZE/5;
         hitBox.width = GamePlayPanel.TILE_SIZE*2/5;
-        hitBox.height = GamePlayPanel.TILE_SIZE;
+        hitBox.height = GamePlayPanel.TILE_SIZE*4/5;
         this.speed = 1.5f; //map editor
     }
 
@@ -64,14 +64,14 @@ public class Player extends Entity {
     }
     private void updateHitBox(){
         hitBox.x = (int)this.x;
-        hitBox.y = (int)this.y;
+        hitBox.y = (int)this.y + GamePlayPanel.TILE_SIZE/5;
         if(direction == 3){
             hitBox.x = (int)this.x + hitBox.width*2/5;
         }
     }
 
     private void updateXPos(float xSpeed){
-        if(Environment.canMoveHere(x+xSpeed,y, hitBox.width, hitBox.height,
+        if(Environment.canMoveHere(x+xSpeed,hitBox.y-1, hitBox.width, hitBox.height,
                 thisPlaying.getMapManager().getLevel().getLevelData())
         ){
             x+= xSpeed;
@@ -132,7 +132,7 @@ public class Player extends Entity {
                 jump();
             }
             if(!thisPlaying.upPressed && thisPlaying.downPressed){
-                ySpeed = speed;
+//                ySpeed = speed;
             }
             if(thisPlaying.leftPressed && !thisPlaying.rightPressed){
                 xSpeed = -speed;
@@ -146,7 +146,7 @@ public class Player extends Entity {
             }
         }
         if(isInAir){
-            if(Environment.canMoveHere(hitBox.x,y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
+            if(Environment.canMoveHere(hitBox.x,hitBox.y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
                 y += airSpeed;
                 airSpeed += gravity;
                 updateXPos(xSpeed);
@@ -166,7 +166,7 @@ public class Player extends Entity {
 
 
 
-        if(Environment.canMoveHere(x,y+ySpeed, hitBox.width, hitBox.height,
+        if(Environment.canMoveHere(hitBox.x,hitBox.y+ySpeed, hitBox.width, hitBox.height,
                 thisPlaying.getMapManager().getLevel().getLevelData())
         ){
             y+= ySpeed;

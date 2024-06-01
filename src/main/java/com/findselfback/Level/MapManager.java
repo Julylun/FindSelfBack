@@ -1,5 +1,6 @@
 package com.findselfback.Level;
 
+import com.findselfback.Utilz.PrintColor;
 import com.findselfback.View.GamePlayPanel;
 import lombok.Data;
 
@@ -94,7 +95,10 @@ public class MapManager {
             for(int columnIndex = 0; columnIndex < level.levelData[0].length; columnIndex++){
                 LayerTile currentTileList = level.getSpriteMapIndex(rowIndex,columnIndex);
                 TreeSet<Tile> tileTreeSet = currentTileList.getTileTreeSet();
+
                 for(Tile tile: tileTreeSet){
+//                    PrintColor.println(PrintColor.BLUE_BOLD, tile.value + "");
+                    if(tile.value > spriteMap.length) continue;
                     graphics2D.drawImage(
                             spriteMap[tile.value],
                             columnIndex*GamePlayPanel.TILE_SIZE - xOffset,

@@ -11,7 +11,7 @@ public class GameFrame extends JFrame {
     private GamePlayPanel gamePlayPanel = new GamePlayPanel(this);
     public GameFrame(){
         PrintColor.debug(PrintColor.YELLOW,"GameFrame","Constructor","Start GameView...");
-        setResizable(false);
+        setResizable(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle("Find Self Back");
 

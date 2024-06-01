@@ -99,7 +99,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
         thisGameFrame = gameFrame;
         setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));
         setBackground(Color.BLACK);
-        setDoubleBuffered(true);
+//        setDoubleBuffered(true);
         fpsCounter = new FPSCounter();
         fpsCounter.start();
 
@@ -163,19 +163,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 frames = 0;
                 updates = 0;
             }
-
-
-
-                //Explain how does this loop work?
-                //Following computer's theory, average drawing time of a frame is equal 1000000000(nano seconds)/FPS
-                //remainingTime is a value that indicates how distance time from present to the theory time is.
-                //If remainingTime > 0, that means the computer completely process data before the deadline time
-                //(that means the computer is strong so that has no lag here and already to draw the frame) but
-                //following the theory, the frame has to be drawn at nextDrawTime, so we have to delay a time is
-                // a distance from present to nextDrawTime (delay the remainingTime);
-                // But else if remainingTime < 0, that means the computer is so weak and that haven't process data
-                //yet baut following the theory it has to draw. so we will not delay and the screen will be lagged
-
     }
     }
 
@@ -224,9 +211,23 @@ public class GamePlayPanel extends JPanel implements Runnable{
                         playing.getPlayer().setY(clickEvent.getY());
                     } else
                     if(currentTileEditingMode != -1){
-                        editingMap.setRGB(realMouseCol,mouseRow,new Color(currentTileEditingMode,0,0).getRGB());
                         LayerTile layerTileAtCursor = playing.getMapManager().getLevel().getLevelData()[mouseRow][realMouseCol];
                         layerTileAtCursor.add(currentTileEditingMode,layerTileAtCursor.lastDepth()+1);
+
+                        int[] arrayOfColorValue = new int[4];
+                        for(int i = 0; i < 4; i++){
+                            arrayOfColorValue[i] = 11;
+                        }
+                        int index = 0;
+                        for(Tile tile : layerTileAtCursor.getTileTreeSet()){
+                            arrayOfColorValue[index] = tile.value;
+                            index++;
+                            if(index >= 4) break;
+                        }
+                        editingMap.setRGB(realMouseCol,mouseRow,new Color(arrayOfColorValue[0],
+                                arrayOfColorValue[1],
+                                arrayOfColorValue[2],
+                                arrayOfColorValue[3]).getRGB());
                     }
 
                 }
@@ -243,8 +244,8 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 }
                 if(isSaving){
                     try {
-                        ImageIO.write(editingMap,"png",new File("src/main/resources/map/state_1.png"));
-                        System.out.println("Saved map at src/main/resources/map/state_1.png");
+                        ImageIO.write(editingMap,"png",new File("Resources/map/state_1.png"));
+                        System.out.println("Saved map at Resources/map/state_1.png");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -297,9 +298,9 @@ public class GamePlayPanel extends JPanel implements Runnable{
     }
 
     public void editingModeInit(){
-        tileMap = LoadSave.getSpriteAtlas("src/main/resources/assets/terrain_sprite_sheet_map.png");
+        tileMap = LoadSave.getSpriteAtlas("Resources/assets/terrain_sprite_sheet_map.png");
         tileMapForMapEditing = MapManager._autoGetSprite(tileMap,ORIGINAL_TILE_SIZE,ORIGINAL_TILE_SIZE);
-        editingMap = LoadSave.getSpriteAtlas("src/main/resources/map/state_1.png");
+        editingMap = LoadSave.getSpriteAtlas("Resources/map/state_1.png");
         playing.getPlayer().setGravity(0.002f);
         playing.getPlayer().setSpeed(4);
 //        playing.getPlayer().setFallingSpeedAfterCollision(0);
@@ -309,7 +310,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public void deleteAllMap(){
         for(int i = 0; i < editingMap.getHeight(); i++){
             for(int j = 0; j < editingMap.getWidth(); j++){
-                editingMap.setRGB(j,i,new Color(11,0,0).getRGB());
+                editingMap.setRGB(j,i,new Color(11,11,11,11).getRGB());
                 LayerTile layerTile = playing.getMapManager().getLevel().getLevelData()[i][j];
                 layerTile.removeAll();
                 layerTile.add(11,0);

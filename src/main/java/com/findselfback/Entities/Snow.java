@@ -21,7 +21,7 @@ public class Snow extends Entity{
     private Playing thisPlaying;
     public Snow(Playing playing){
         thisPlaying = playing;
-        spriteSheet = new SpriteSheet("src/main/resources/assets/snow.png", GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE);
+        spriteSheet = new SpriteSheet("Resources/assets/snow.png", GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE);
         hitBox = new Rectangle2D.Float();
         hitBox.x = 13;
         hitBox.width = 6;
