@@ -2,12 +2,12 @@ package com.findselfback.Entities;
 
 import com.findselfback.Control.InputHandle;
 import com.findselfback.GameState.Playing;
-import com.findselfback.Utilz.SpriteSheet;
-import com.findselfback.Utilz.Coordinate2D;
-import com.findselfback.Utilz.Environment;
+import com.findselfback.Utilz.*;
 import com.findselfback.View.GamePlayPanel;
 import lombok.Data;
 
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
@@ -21,6 +21,7 @@ public class Player extends Entity {
     private Playing thisPlaying;
     private SpriteSheet sprite;
     private boolean isMoving, isInAir = false;
+    private Clip walkSound, jumpSound;
 
     private boolean moveLeft = false, moveRight = false, moveTop = false, moveBot = false;
     private boolean isFlip = false;
@@ -39,11 +40,13 @@ public class Player extends Entity {
 
         this.sprite = new SpriteSheet(spritePath, GamePlayPanel.ORIGINAL_TILE_SIZE, GamePlayPanel.ORIGINAL_TILE_SIZE);
         loadAnimation();
+        loadAudio();
 
 
     }
     private void init(){
         hitBox = new Rectangle2D.Float();
+
 
         //Set location and speed
         this.x = 200;
@@ -52,7 +55,7 @@ public class Player extends Entity {
         hitBox.y = (int)this.y + GamePlayPanel.TILE_SIZE/5;
         hitBox.width = GamePlayPanel.TILE_SIZE*2/5;
         hitBox.height = GamePlayPanel.TILE_SIZE*4/5;
-        this.speed = 1.5f; //map editor
+        this.speed = 0.8f; //map editor
     }
 
     private void drawHitBox(Graphics g, int xOffset,boolean isEnable){
@@ -83,6 +86,14 @@ public class Player extends Entity {
     private void resetInAir(){
         isInAir = false;
         airSpeed = 0;
+    }
+
+    private void loadAudio(){
+        walkSound = AudioPlayer.getClip(Constant.AudioPath.Player.WALK);
+        jumpSound = AudioPlayer.getClip(Constant.AudioPath.Player.JUMP);
+        FloatControl volume = (FloatControl)walkSound.getControl(FloatControl.Type.MASTER_GAIN);
+        volume.setValue(3/100f);
+
     }
     private void loadAnimation(){
         //Set sprite
@@ -122,6 +133,7 @@ public class Player extends Entity {
     @Override
     public void update() {
         float xSpeed = 0, ySpeed = 0;
+        float newSpeed = (thisPlaying.shiftPressed)? speed*1.4f : speed;
 
         if(!isInAir && !Environment.isOnGround(hitBox,thisPlaying.getMapManager().getLevel().getLevelData())){
             isInAir = true;
@@ -129,18 +141,22 @@ public class Player extends Entity {
 
         if(!thisPlaying.isNoPressed()){
             if(thisPlaying.upPressed && !thisPlaying.downPressed){
+                if(isInAir == false){
+                    jumpSound.setFramePosition(0);
+                    jumpSound.start();
+                }
                 jump();
             }
             if(!thisPlaying.upPressed && thisPlaying.downPressed){
-//                ySpeed = speed;
+//                ySpeed = newSpeed;
             }
             if(thisPlaying.leftPressed && !thisPlaying.rightPressed){
-                xSpeed = -speed;
+                xSpeed = -newSpeed;
                 isFlip = true;
                 direction = 3;
             }
             if(thisPlaying.rightPressed && !thisPlaying.leftPressed){
-                xSpeed = speed;
+                xSpeed = newSpeed;
                 isFlip = false;
                 direction = 1;
             }
@@ -197,6 +213,12 @@ public class Player extends Entity {
                     sprite.setCurrentSprite(IDLE);
                     sprite.nextFrame(thisInputHandle.getLastPressed() == KeyEvent.VK_D);
                 }
+                if(walkSound.getMicrosecondPosition() >= walkSound.getMicrosecondLength()){
+                    walkSound.setFramePosition(0);
+                }
+                walkSound.start();
+
+
             } else {
                 sprite.setCurrentSprite(IDLE);
                 if (thisPlaying.lastPressed == KeyEvent.VK_A) {

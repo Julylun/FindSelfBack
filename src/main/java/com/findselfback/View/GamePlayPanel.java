@@ -22,6 +22,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +55,8 @@ class FPSCounter extends Thread{
 public class GamePlayPanel extends JPanel implements Runnable{
     private final GameFrame thisGameFrame;
     private double currentFPS = 0, currentUPS = 0;
-    private boolean isDebugging = true;
+    private boolean isDebugging = false;
+    private boolean isTalking = false;
 
     private boolean mapEditingMode = false;
     public int currentTileEditingMode = 0;
@@ -64,6 +67,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public boolean isSaving = false;
     public BufferedImage editingMap;
     public BufferedImage tileMap;
+    private BufferStrategy bufferStrategy;
 
     private BufferedImage[] tileMapForMapEditing;
 
@@ -89,6 +93,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
     private MenuState menuState = new MenuState(this);
 
     private Thread gameThread;
+    private Thread updateThread, renderThread;
     private FPSCounter fpsCounter;
 
     public GamePlayPanel(GameFrame gameFrame){
@@ -121,28 +126,25 @@ public class GamePlayPanel extends JPanel implements Runnable{
     @Override
     public void run() {
         PrintColor.debug(PrintColor.YELLOW_UNDERLINED,"GamePlayPanel","run","Game is running...");
-        double drawInterval = 1000000000/FPS; //Average time of a frame in theory
-        double updateInterval = 1000000000/UPS;
+        updateThread = new Thread(GamePlayPanel.this::updateLoop);
+        renderThread = new Thread(GamePlayPanel.this::renderLoop);
 
+        updateThread.start();
+        renderThread.start();
+    }
+
+    public void renderLoop(){
+
+        double drawInterval = 1000000000/FPS; //Average time of a frame in theory
         double deltaFrame = 0;
-        double deltaUpdate  = 0;
         double lastCheck = System.currentTimeMillis();
         double previousTime = System.nanoTime();
-        double frames = 0, updates = 0;
-
+        double frames = 0;
         while (true){
             double currentTime = System.nanoTime();
-
-            deltaUpdate += (currentTime - previousTime) / updateInterval;
             deltaFrame += (currentTime - previousTime) / drawInterval;
             previousTime = currentTime;
 
-
-            if(deltaUpdate >= 1) {
-                update();
-                updates++;
-                deltaUpdate--;
-            }
             if(isNext){
                 isNext = false;
                 continue;
@@ -156,19 +158,52 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
             if(System.currentTimeMillis() - lastCheck >= 1000){
                 lastCheck +=1000;
-//                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + frames + " | UPS: " + updates);
-                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + fpsCounter.fps());
                 currentFPS = frames;
-                currentUPS = updates;
                 frames = 0;
+            }
+        }
+    }
+
+    public void updateLoop(){
+        double updateInterval = 1000000000/UPS;
+        double deltaUpdate  = 0;
+        double lastCheck = System.currentTimeMillis();
+        double previousTime = System.nanoTime();
+        double updates = 0;
+
+        while (true){
+            double currentTime = System.nanoTime();
+            deltaUpdate += (currentTime - previousTime) / updateInterval;
+            previousTime = currentTime;
+            if(deltaUpdate >= 1) {
+                update();
+                updates++;
+                deltaUpdate--;
+            }
+            if(isNext){
+                isNext = false;
+                continue;
+            }
+            if(System.currentTimeMillis() - lastCheck >= 1000){
+                lastCheck +=1000;
+                PrintColor.debug(PrintColor.CYAN_BRIGHT,"GamePlayPanel","run","FPS: " + fpsCounter.fps());
+                currentUPS = updates;
                 updates = 0;
             }
-    }
+        }
     }
 
+    /**
+     *If developer press on [F1] key, debugging mode will be on and display debugging information <br>
+      If developer press on [F12] key, editing mode will be on and display editing map information<br>
+      In editing mode, developer can press on [F11] to display current pixel map<br>
+      [F6] to display tile map sheet and choose tile map by mouse clicking<br>
+      [Delete] to delete all map<br>
+      [F2] to save map.
+     * @param g
+     */
     public void drawDebug(Graphics g){
         if(isDebugging){
-
             g.setFont(Constant.DefaultFont.DEFAULT);
             g.setColor(Color.YELLOW);
             g.drawString("FPS: "+ currentFPS + " - UPS: " + currentUPS, 0, 20);
@@ -178,6 +213,8 @@ public class GamePlayPanel extends JPanel implements Runnable{
             g.drawString((inputHandle.getLastMouseEvent() == null) ? "Mouse: null": "Mouse: " + inputHandle.getLastMouseEvent().paramString(), 0, 100);
             g.drawString(playing.getOffsetDebuggingString(),0,120);
             g.drawString("Map editing mode: " + isMapEditingMode() + "|| F12: on/off Map editor || F11: on/off Editing map || F6: on/off tile chooser || F2: save map || Right click: move character to mouse || Left click: draw tile map",0,140);
+            Rectangle2D tmpHitbox =  playing.getPlayer().getHitBox();
+            g.drawString("Current tile pos:  " + (int)tmpHitbox.getX()/GamePlayPanel.TILE_SIZE + " : " + (int)tmpHitbox.getY()/GamePlayPanel.TILE_SIZE, 0, 180);
 
             g.setColor(Color.BLACK);
         }
@@ -186,7 +223,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
             g.drawString("current Tile: " + currentTileEditingMode,0,160);
             g.setColor(Color.BLACK);
             Point mousePoint = getMousePosition();
-            MouseEvent mouseEvent = inputHandle.getLastMouseEvent();
             if(mousePoint != null){
                 int mouseCol = (mousePoint.x)/TILE_SIZE;
                 int mouseRow = mousePoint.y/TILE_SIZE;
@@ -200,7 +236,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
                                 mouseCol*TILE_SIZE - (playing.getxLevelOffset()%TILE_SIZE),mouseRow*TILE_SIZE,TILE_SIZE,TILE_SIZE,null);
                     }
                 }
-
                 if(isMapEnable){
                     g.drawImage(editingMap,0,0,editingMap.getWidth()*10,editingMap.getHeight()*10,null);
                 }
@@ -244,7 +279,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 }
                 if(isSaving){
                     try {
-                        ImageIO.write(editingMap,"png",new File("Resources/map/state_1.png"));
+                        ImageIO.write(editingMap,"png",new File(LoadSave.STAGE_ONE_PATH));
                         System.out.println("Saved map at Resources/map/state_1.png");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -266,7 +301,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
                 break;
         }
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -303,8 +337,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
         editingMap = LoadSave.getSpriteAtlas("Resources/map/state_1.png");
         playing.getPlayer().setGravity(0.002f);
         playing.getPlayer().setSpeed(4);
-//        playing.getPlayer().setFallingSpeedAfterCollision(0);
-//        playing.getPlayer().setJumpSpeed(-3);
     }
 
     public void deleteAllMap(){
@@ -319,4 +351,16 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
     }
 
+    public void deleteTileAtCursorPosition() {
+        Point mousePoint = getMousePosition();
+        int mouseRow = mousePoint.y/TILE_SIZE;
+        int realMouseCol = (mousePoint.x + getPlaying().getxLevelOffset())/TILE_SIZE;
+        LayerTile layerTileAtCursor = playing.getMapManager().getLevel().getLevelData()[mouseRow][realMouseCol];
+        layerTileAtCursor.removeAll();
+        layerTileAtCursor.add(11,0);
+        layerTileAtCursor.add(11,1);
+        layerTileAtCursor.add(11,2);
+        layerTileAtCursor.add(11,3);
+        editingMap.setRGB(realMouseCol,mouseRow,new Color(11,11,11,11).getRGB());
+    }
 }

@@ -41,8 +41,14 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
             thisGamePlayPanel.setDebugging(!thisGamePlayPanel.isDebugging());
         }
         switch (GameState.state){
-            case PLAYING:
-                thisGamePlayPanel.getPlaying().keyPressed(e);
+            case PLAYING:{
+                if (!thisGamePlayPanel.getPlaying().getSubtitle().isDisplay()) {
+                    thisGamePlayPanel.getPlaying().keyPressed(e);
+                } else {
+//                    thisGamePlayPanel.getPlaying().getSubtitle().nextSubtitle();
+                }
+            }
+
                 break;
             case MENU:
                 thisGamePlayPanel.getMenuState().keyPressed(e);
@@ -66,10 +72,20 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
         if(e.getKeyCode() == KeyEvent.VK_DELETE){
             thisGamePlayPanel.deleteAllMap();
         }
+        if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+            System.out.println("AAA");
+            thisGamePlayPanel.deleteTileAtCursorPosition();
+        }
         switch (GameState.state){
-            case PLAYING:
-                thisGamePlayPanel.getPlaying().keyReleased(e);
+            case PLAYING:{
+                if (!thisGamePlayPanel.getPlaying().getSubtitle().isDisplay()) {
+                    thisGamePlayPanel.getPlaying().keyReleased(e);
+                } else {
+                    thisGamePlayPanel.getPlaying().getSubtitle().nextSubtitle();
+                }
+
                 break;
+            }
             case MENU:
                 thisGamePlayPanel.getMenuState().keyReleased(e);
                 break;
@@ -89,9 +105,12 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
     public void mousePressed(MouseEvent e) {
         thisGamePlayPanel.isPressing = true;
         switch (GameState.state){
-            case PLAYING:
-                thisGamePlayPanel.getPlaying().mousePressed(e);
+            case PLAYING: {
+                if (!thisGamePlayPanel.getPlaying().getSubtitle().isDisplay()) {
+                    thisGamePlayPanel.getPlaying().mousePressed(e);
+                }
                 break;
+            }
             case MENU:
                 thisGamePlayPanel.getMenuState().mousePressed(e);
                 break;
@@ -102,8 +121,13 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
     public void mouseReleased(MouseEvent e) {
         thisGamePlayPanel.isPressing = false;
             switch (GameState.state){
-                case PLAYING:
-                    thisGamePlayPanel.getPlaying().mouseReleased(e);
+                case PLAYING: {
+                    if (!thisGamePlayPanel.getPlaying().getSubtitle().isDisplay()) {
+                        thisGamePlayPanel.getPlaying().mouseReleased(e);
+                    } else {
+                        thisGamePlayPanel.getPlaying().getSubtitle().nextSubtitle();
+                    }
+                }
                     break;
                 case MENU:
                     thisGamePlayPanel.getMenuState().mouseReleased(e);

@@ -1,15 +1,16 @@
 package com.findselfback.GameState;
 
 import com.findselfback.Control.Statemethod;
-import com.findselfback.Entities.Player;
-import com.findselfback.Entities.Rabbit;
-import com.findselfback.Entities.Rain;
-import com.findselfback.Entities.Snow;
+import com.findselfback.Entities.*;
+import com.findselfback.Level.EventManager;
 import com.findselfback.Level.LoadSave;
 import com.findselfback.Level.MapManager;
 import com.findselfback.Utilz.AudioPlayer;
+import com.findselfback.Utilz.Conversation;
 import com.findselfback.Utilz.MP3Player;
 import com.findselfback.View.GamePlayPanel;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,13 +30,20 @@ public class Playing extends State implements Statemethod {
     public int delayWindTime = 400;
     public int currentWindTick = 0;
     private MapManager mapManager;
+    @Getter
     private AudioPlayer audioPlayer;
-    public boolean upPressed = false, rightPressed = false, downPressed = false, leftPressed = false;
+    @Getter
+    private Subtitle subtitle;
+    @Getter
+    private EventManager eventManager;
+    @Getter
+    @Setter
+    public boolean upPressed = false, rightPressed = false, downPressed = false, leftPressed = false, shiftPressed = false;
     public boolean isNoPressed = true;
     public int lastPressed;
     private int xLevelOffset;
-    private int leftBorder = (int)(0.2 * GamePlayPanel.SCREEN_WIDTH);
-    private int rightBorder = (int)(0.8 * GamePlayPanel.SCREEN_WIDTH);
+    private int leftBorder = (int)(0.3 * GamePlayPanel.SCREEN_WIDTH);
+    private int rightBorder = (int)(0.5 * GamePlayPanel.SCREEN_WIDTH);
     private int totalTileWidth;
     private int maxTileWidth;
     private int maxOffsetWidth;
@@ -60,6 +68,8 @@ public class Playing extends State implements Statemethod {
         mapManager = new MapManager(gamePlayPanel);
         mapManager.autoGetSprite(LoadSave.getSpriteAtlas(LoadSave.MAP_ATLAS_PATH));
         mapManager.setLevel(LoadSave.STAGE_ONE_PATH);
+        subtitle = new Subtitle(this);
+        eventManager = new EventManager(this);
 
         player = new Player(this,"Resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
 
@@ -99,7 +109,11 @@ public class Playing extends State implements Statemethod {
 
         audioPlayer = new AudioPlayer();
         audioPlayer.getEnvironmentAudioList()[0].setLoop(true);
-        audioPlayer.getEnvironmentAudioList()[0].play();
+
+        //TEST
+        subtitle.setCurrentConversation(Conversation.Begin.FIRST_TALK);
+        subtitle.setDisplay(true);
+        subtitle.nextSubtitle();
 
     }
 
@@ -157,12 +171,10 @@ public class Playing extends State implements Statemethod {
             rabbitList[i].update();
         }
         player.update();
-//        for(Rain rain: rainList){
-//            rain.update();
-//        }
         for(Snow snow: snowList){
             snow.update();
         }
+        eventManager.update();
         checkCloseToBorder();
     }
 
@@ -181,6 +193,9 @@ public class Playing extends State implements Statemethod {
         for(Snow snow: snowList){
             snow.paint(g,xLevelOffset);
         }
+
+        subtitle.paint(g,xLevelOffset);
+        eventManager.paint(g,xLevelOffset);
     }
 
     @Override
@@ -232,6 +247,9 @@ public class Playing extends State implements Statemethod {
         }if(eventCode == KeyEvent.VK_A){ //A button
             leftPressed = true;
         }
+        if(eventCode == KeyEvent.VK_SHIFT){
+            shiftPressed = true;
+        }
     }
 
     @Override
@@ -258,6 +276,9 @@ public class Playing extends State implements Statemethod {
             downPressed = false;
         }if(eventCode == KeyEvent.VK_A){ //A button
             leftPressed = false;
+        }
+        if(eventCode == KeyEvent.VK_SHIFT){
+            shiftPressed = false;
         }
         lastPressed = eventCode;
     }

@@ -5,10 +5,10 @@ import com.findselfback.Utilz.Coordinate2D;
 import com.findselfback.Utilz.Environment;
 import com.findselfback.Utilz.SpriteSheet;
 import com.findselfback.View.GamePlayPanel;
+import com.findselfback.Utilz.Constant.*;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -22,7 +22,7 @@ public class Rain extends Entity{
     private Playing thisPlaying;
     public Rain(Playing playing){
         thisPlaying = playing;
-        spriteSheet = new SpriteSheet("src/main/resources/assets/rain.png", GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE);
+        spriteSheet = new SpriteSheet(AssetPath.Environment.RAIN, GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE);
         Vector<Coordinate2D> vector = new Vector<Coordinate2D>();
         vector.add(new Coordinate2D(0,0));
         spriteSheet.createSprite(ALIVE,vector);
