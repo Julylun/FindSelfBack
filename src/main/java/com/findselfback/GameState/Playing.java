@@ -6,11 +6,13 @@ import com.findselfback.Level.EventManager;
 import com.findselfback.Level.LoadSave;
 import com.findselfback.Level.MapManager;
 import com.findselfback.Utilz.AudioPlayer;
+import com.findselfback.Utilz.Constant;
 import com.findselfback.Utilz.Conversation;
-import com.findselfback.Utilz.MP3Player;
 import com.findselfback.View.GamePlayPanel;
 import lombok.Getter;
 import lombok.Setter;
+import com.findselfback.Entities.NPC;
+import org.hibernate.boot.cfgxml.internal.CfgXmlAccessServiceInitiator;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,6 +27,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Playing extends State implements Statemethod {
     private Player player;
     private Rabbit[] rabbitList;
+    private SmokeArea[] smokeFxList;
+    private FX[] FXList;
+    private NPC[] NPCList;
     private Snow[] snowList;
     public float windSpeed;
     public int delayWindTime = 400;
@@ -38,7 +43,7 @@ public class Playing extends State implements Statemethod {
     private EventManager eventManager;
     @Getter
     @Setter
-    public boolean upPressed = false, rightPressed = false, downPressed = false, leftPressed = false, shiftPressed = false;
+    public boolean EButton = false, upPressed = false, rightPressed = false, downPressed = false, leftPressed = false, shiftPressed = false;
     public boolean isNoPressed = true;
     public int lastPressed;
     private int xLevelOffset;
@@ -71,23 +76,20 @@ public class Playing extends State implements Statemethod {
         subtitle = new Subtitle(this);
         eventManager = new EventManager(this);
 
-        player = new Player(this,"Resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
-
-        snowList = new Snow[50];
-        rabbitList = new Rabbit[10];
-        for(int i = 0; i < rabbitList.length; i++){
-            rabbitList[i] = new Rabbit(this, "Resources/assets/RabbitSpriteSheet.png");
-        }
-
-
         windSpeed = (float) ThreadLocalRandom.current().nextDouble(-1,1);
 
+        //Character initialize
+        player = new Player(this,"Resources/assets/PlayerSheet2.png", gamePlayPanel.getInputHandle());
+        NPCInit();
+        FXInit();
+        snowList = new Snow[25];
+        rabbitList = new Rabbit[10];
         for(int i = 0; i < snowList.length; i++){
             snowList[i] = new Snow(this);
         }
-
-
-
+        for(int i = 0; i < rabbitList.length; i++){
+            rabbitList[i] = new Rabbit(this, "Resources/assets/RabbitSpriteSheet.png");
+        }
 
 
         try {
@@ -113,7 +115,37 @@ public class Playing extends State implements Statemethod {
         //TEST
         subtitle.setCurrentConversation(Conversation.Begin.FIRST_TALK);
         subtitle.setDisplay(true);
-        subtitle.nextSubtitle();
+//        subtitle.nextSubtitle();
+
+    }
+
+    private void FXInit(){
+        FXList = new FX[3];
+        FXList[0] = new FX(this,Constant.AssetPath.FX.LIGHT,320,397,32,32,8,4);
+        FXList[1] = new FX(this,Constant.AssetPath.FX.LIGHT,350,397,32,32,8,4);
+        FXList[2] = new FX(this,Constant.AssetPath.FX.TRAFFIC_POLICE_LIGHT,1603, 413,32,32,8,4);
+
+        smokeFxList = new SmokeArea[1];
+        smokeFxList[0] = new SmokeArea(this, 10, 1956,450,20,20);
+    }
+    private void NPCInit(){
+        NPCList = new NPC[1];
+        NPCList[NPC.TRAFFIC_POLICE] = new NPC(this,"Resources/assets/NPC/traffic_police.png",
+                GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE,NPC.TRAFFIC_POLICE);
+
+        NPCList[NPC.TRAFFIC_POLICE].getSpriteSheet().createSprite(
+                Constant.Animation.IDLE,
+                0,0,GamePlayPanel.ORIGINAL_TILE_SIZE,GamePlayPanel.ORIGINAL_TILE_SIZE,8
+        );
+        NPCList[NPC.TRAFFIC_POLICE].getSpriteSheet().setCurrentSprite(Constant.Animation.IDLE);
+        NPCList[NPC.TRAFFIC_POLICE].getSpriteSheet().setDelayTime(10);
+        NPCList[NPC.TRAFFIC_POLICE].configure(26*GamePlayPanel.TILE_SIZE,
+                7*GamePlayPanel.TILE_SIZE,
+                GamePlayPanel.TILE_SIZE,
+                GamePlayPanel.TILE_SIZE
+        );
+        NPCList[NPC.TRAFFIC_POLICE].setEventBox(25*GamePlayPanel.TILE_SIZE,6*GamePlayPanel.TILE_SIZE,
+                3*GamePlayPanel.TILE_SIZE,3*GamePlayPanel.TILE_SIZE);
 
     }
 
@@ -154,8 +186,6 @@ public class Playing extends State implements Statemethod {
 
             g.drawImage(backgroundLayer7,(int)(xLevelOffset*0.25/GamePlayPanel.SCREEN_WIDTH) *GamePlayPanel.SCREEN_WIDTH -(int)(xLevelOffset*0.25),GamePlayPanel.SCREEN_HEIGHT-(int)(backgroundLayer7.getHeight()*GamePlayPanel.SCALE),(int)(backgroundLayer7.getWidth()*GamePlayPanel.SCALE), (int)(backgroundLayer7.getHeight()*GamePlayPanel.SCALE),null);
             g.drawImage(backgroundLayer7,(int)(xLevelOffset*0.25/GamePlayPanel.SCREEN_WIDTH + 1) *GamePlayPanel.SCREEN_WIDTH -(int)(xLevelOffset*0.25),GamePlayPanel.SCREEN_HEIGHT-(int)(backgroundLayer7.getHeight()*GamePlayPanel.SCALE),(int)(backgroundLayer7.getWidth()*GamePlayPanel.SCALE), (int)(backgroundLayer7.getHeight()*GamePlayPanel.SCALE),null);
-
-
     }
     @Override
     public void update() {
@@ -170,9 +200,15 @@ public class Playing extends State implements Statemethod {
         for(int i = 0; i < rabbitList.length; i++){
             rabbitList[i].update();
         }
+        for(int i = 0; i < smokeFxList.length; i++){
+            smokeFxList[i].update();
+        }
         player.update();
         for(Snow snow: snowList){
             snow.update();
+        }
+        for(int index = 0; index < NPCList.length; index++){
+            NPCList[index].update();
         }
         eventManager.update();
         checkCloseToBorder();
@@ -180,23 +216,114 @@ public class Playing extends State implements Statemethod {
 
     @Override
     public void draw(Graphics g) {
+        //Draw background
         backgroundDraw(g);
+
+        //Draw tile map
         mapManager.draw(g, xLevelOffset);
         for(int i = 0; i < rabbitList.length; i++){
             rabbitList[i].paint(g,xLevelOffset);
         }
 
+        for(int index = 0; index < NPCList.length; index++){
+            NPCList[index].paint(g,xLevelOffset);
+        }
+        for(int i = 0; i < smokeFxList.length; i++){
+            smokeFxList[i].paint(g,xLevelOffset);
+        }
+        //Draw player
         player.paint(g,xLevelOffset);
-//        for(Rain rain: rainList){
-//            rain.paint(g,xLevelOffset);
-//        }
+        //Draw snow
+        for(int i = 0; i < FXList.length; i++){
+            FXList[i].paint(g,xLevelOffset);
+        }
         for(Snow snow: snowList){
             snow.paint(g,xLevelOffset);
         }
 
+        //Draw subtitle and task text
         subtitle.paint(g,xLevelOffset);
         eventManager.paint(g,xLevelOffset);
     }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int eventCode = e.getKeyCode();
+        if(eventCode == KeyEvent.VK_W){ //W button
+            upPressed = true;
+        }
+        if(eventCode == KeyEvent.VK_D){ //D button
+            rightPressed = true;
+        }
+        if(eventCode == KeyEvent.VK_S){ //S button
+            downPressed = true;
+        }if(eventCode == KeyEvent.VK_A){ //A button
+            leftPressed = true;
+        }
+        if(eventCode == KeyEvent.VK_SHIFT){
+            shiftPressed = true;
+        }
+        if(eventCode == KeyEvent.VK_E){
+            EButton = true;
+            System.out.println("EEEwdd");
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        int eventCode = e.getKeyCode();
+        if(eventCode == KeyEvent.VK_F12){
+            if(!gamePlayPanel.isMapEditingMode())
+            {
+                gamePlayPanel.editingModeInit();
+            }
+            gamePlayPanel.setMapEditingMode();
+        }
+        if(eventCode == KeyEvent.VK_F5){
+            gamePlayPanel.setPlaying(new Playing(gamePlayPanel));
+//            gamePlayPanel.isNext = true;
+        }
+        if(eventCode == KeyEvent.VK_W){ //W button
+            upPressed = false;
+        }
+        if(eventCode == KeyEvent.VK_D){ //D button
+            rightPressed = false;
+        }
+        if(eventCode == KeyEvent.VK_S){ //S button
+            downPressed = false;
+        }if(eventCode == KeyEvent.VK_A){ //A button
+            leftPressed = false;
+        }
+        if(eventCode == KeyEvent.VK_SHIFT){
+            shiftPressed = false;
+        }
+        if(eventCode == KeyEvent.VK_E){
+            EButton = false;
+        }
+        lastPressed = eventCode;
+    }
+
+    public boolean isNoPressed(){
+        return !upPressed && !rightPressed && !downPressed && !leftPressed;
+    }
+
+    public MapManager getMapManager() {
+        return mapManager;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public int getxLevelOffset() {
+        return xLevelOffset;
+    }
+
+    public String getOffsetDebuggingString(){
+        return "xOffset=" + xLevelOffset;
+    }
+
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -231,75 +358,5 @@ public class Playing extends State implements Statemethod {
     @Override
     public void mouseEntered(MouseEvent e) {
 
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int eventCode = e.getKeyCode();
-        if(eventCode == KeyEvent.VK_W){ //W button
-            upPressed = true;
-        }
-        if(eventCode == KeyEvent.VK_D){ //D button
-            rightPressed = true;
-        }
-        if(eventCode == KeyEvent.VK_S){ //S button
-            downPressed = true;
-        }if(eventCode == KeyEvent.VK_A){ //A button
-            leftPressed = true;
-        }
-        if(eventCode == KeyEvent.VK_SHIFT){
-            shiftPressed = true;
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        int eventCode = e.getKeyCode();
-        if(eventCode == KeyEvent.VK_F12){
-            if(!gamePlayPanel.isMapEditingMode())
-            {
-                gamePlayPanel.editingModeInit();
-            }
-            gamePlayPanel.setMapEditingMode();
-        }
-        if(eventCode == KeyEvent.VK_F5){
-            gamePlayPanel.setPlaying(new Playing(gamePlayPanel));
-//            gamePlayPanel.isNext = true;
-        }
-        if(eventCode == KeyEvent.VK_W){ //W button
-            upPressed = false;
-        }
-        if(eventCode == KeyEvent.VK_D){ //D button
-            rightPressed = false;
-        }
-        if(eventCode == KeyEvent.VK_S){ //S button
-            downPressed = false;
-        }if(eventCode == KeyEvent.VK_A){ //A button
-            leftPressed = false;
-        }
-        if(eventCode == KeyEvent.VK_SHIFT){
-            shiftPressed = false;
-        }
-        lastPressed = eventCode;
-    }
-
-    public boolean isNoPressed(){
-        return !upPressed && !rightPressed && !downPressed && !leftPressed;
-    }
-
-    public MapManager getMapManager() {
-        return mapManager;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public int getxLevelOffset() {
-        return xLevelOffset;
-    }
-
-    public String getOffsetDebuggingString(){
-        return "xOffset=" + xLevelOffset;
     }
 }

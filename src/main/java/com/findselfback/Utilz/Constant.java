@@ -25,8 +25,17 @@ public class Constant {
             public static final String SNOW = "Resources/assets/snow.png";
             public static final String RAIN = "Resources/assets/rain.png";
         }
+        public static class FX {
+            public static final String LIGHT = "Resources/assets/FX/light.png";
+            public static final String TRAFFIC_POLICE_LIGHT = "Resources/assets/FX/traffic_police_light.png";
+            public static final String SMOKE = "Resources/assets/FX/smoke.png";
+        }
     }
     public static class Animation{
+        public static class FX {
+            public static final int RUNNING = 1;
+            public static final int STOPPING = 0;
+        }
         public static final int IDLE = 0;
         public static final int WALKING = 1;
         public static final int RUNNING = 2;

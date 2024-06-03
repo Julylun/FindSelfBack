@@ -28,7 +28,7 @@ public class Rabbit extends Animal{
         x = ThreadLocalRandom.current().nextInt(0,
                 thisPlaying.getMapManager().getLevel().getLevelData()[0].length*GamePlayPanel.TILE_SIZE
         );
-        y = 30;
+        y = 400;
         hitBox = new Rectangle2D.Float();
         hitBox.x = 7;
         hitBox.width = 18;
@@ -61,76 +61,81 @@ public class Rabbit extends Animal{
     }
     @Override
     public void update() {
+        if(hitBox.x - thisPlaying.getxLevelOffset() < -200 || hitBox.x - thisPlaying.getxLevelOffset() > GamePlayPanel.SCREEN_WIDTH + 200) return;
         float xSpeed = 0, ySpeed = 0;
-        if(currentTick >= movingDelay) {
-            if ((int) x == (int) nextX) {
-                if (ThreadLocalRandom.current().nextBoolean()) {
-                    nextX = (float) ThreadLocalRandom.current().nextDouble(x - 100, x + 100);
-                } else {
-                    nextX = x;
-                    movingDelay = ThreadLocalRandom.current().nextInt(100, 800);
-                    currentTick = 0;
-                    int randomSprite = ThreadLocalRandom.current().nextInt(1,3);
-                    switch (randomSprite){
-                        case 1:{
-                            skin.setCurrentSprite(Constant.Animation.IDLE);
-                            break;
-                        }
-                        case 2:{
-                            skin.setCurrentSprite(Constant.Animation.SITTING);
-                            break;
+        if((this.thisPlaying.windSpeed > 0.95f || this.thisPlaying.windSpeed < -0.95f) && !isInAir){
+            xSpeed-= thisPlaying.windSpeed*0.2;
+            updateXPos(xSpeed);
+        } else {
+            if(currentTick >= movingDelay) {
+                if ((int) x == (int) nextX) {
+                    if (ThreadLocalRandom.current().nextBoolean()) {
+                        nextX = (float) ThreadLocalRandom.current().nextDouble(x - 100, x + 100);
+                    } else {
+                        nextX = x;
+                        movingDelay = ThreadLocalRandom.current().nextInt(100, 800);
+                        currentTick = 0;
+                        int randomSprite = ThreadLocalRandom.current().nextInt(1,3);
+                        switch (randomSprite){
+                            case 1:{
+                                skin.setCurrentSprite(Constant.Animation.IDLE);
+                                break;
+                            }
+                            case 2:{
+                                skin.setCurrentSprite(Constant.Animation.SITTING);
+                                break;
+                            }
                         }
                     }
                 }
+            } else {
+                currentTick++;
             }
-        } else {
-            currentTick++;
-        }
 
-        if(nextX == -1.0) {
-            nextX = (float) ThreadLocalRandom.current().nextDouble(x - 40, x + 40);
-
-        }
-        if(!Environment.canMoveHere(hitBox.x+10,y-1,hitBox.width-10,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())) {
-            x += Environment.getEntityPosNearWall(hitBox,xSpeed);
-        }
-
-        if(x > nextX){
-            xSpeed = -speed;
-            skin.setCurrentSprite(Constant.Animation.RUNNING);
-//            isMoving = true;
-            isFlip = true;
-        } else if(x < nextX) {
-            xSpeed = speed;
-            skin.setCurrentSprite(Constant.Animation.RUNNING);
-//            isMoving = true;
-            isFlip = false;
-        }
-        if(!isInAir && !Environment.isOnGround(hitBox,thisPlaying.getMapManager().getLevel().getLevelData())){
-            isInAir = true;
-        } else {
-            isInAir = false;
-        }
-
-        if(isInAir){
-            if(Environment.canMoveHere(hitBox.x,y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
-                y += airSpeed;
-                airSpeed += Constant.EnvironmentValue.gravity;
-                updateXPos(xSpeed);
+            if(nextX == -1.0) {
+                nextX = (float) ThreadLocalRandom.current().nextDouble(x - 40, x + 40);
 
             }
-            else {
-                hitBox.y = Environment.getEntityYPostUnderWallOrAboveGround(hitBox,airSpeed);
-                if(airSpeed > 0) resetInAir();
-                else {
-                    airSpeed = fallingSpeedAfterCollision;
+            if(!Environment.canMoveHere(hitBox.x+10,y-1,hitBox.width-10,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())) {
+                x += Environment.getEntityPosNearWall(hitBox,xSpeed);
+            }
+
+            if(x > nextX){
+                xSpeed -= speed;
+                skin.setCurrentSprite(Constant.Animation.RUNNING);
+//            isMoving = true;
+                isFlip = true;
+            } else if(x < nextX) {
+                xSpeed += speed;
+                skin.setCurrentSprite(Constant.Animation.RUNNING);
+//            isMoving = true;
+                isFlip = false;
+            }
+            if(!isInAir && !Environment.isOnGround(hitBox,thisPlaying.getMapManager().getLevel().getLevelData())){
+                isInAir = true;
+            } else {
+                isInAir = false;
+            }
+
+            if(isInAir){
+                if(Environment.canMoveHere(hitBox.x,y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
+                    y += airSpeed;
+                    airSpeed += Constant.EnvironmentValue.gravity;
                     updateXPos(xSpeed);
-                }
-            }
-        } else{
-            updateXPos(xSpeed);
-        }
 
+                }
+                else {
+                    hitBox.y = Environment.getEntityYPostUnderWallOrAboveGround(hitBox,airSpeed);
+                    if(airSpeed > 0) resetInAir();
+                    else {
+                        airSpeed = fallingSpeedAfterCollision;
+                        updateXPos(xSpeed);
+                    }
+                }
+            } else{
+                updateXPos(xSpeed);
+            }
+        }
 
         updateHitBox();
         speedDebugging = xSpeed;
@@ -144,6 +149,7 @@ public class Rabbit extends Animal{
 
     @Override
     public void paint(Graphics g, int xOffset) {
+        if(hitBox.x - thisPlaying.getxLevelOffset() < -100 || hitBox.x - thisPlaying.getxLevelOffset() > GamePlayPanel.SCREEN_WIDTH + 100) return;
         g.drawImage(skin.getCurrentSprite(), (int) x - xOffset + ((isFlip) ? GamePlayPanel.ORIGINAL_TILE_SIZE : 0), (int) y,GamePlayPanel.ORIGINAL_TILE_SIZE * ((isFlip)? -1 : 1),GamePlayPanel.ORIGINAL_TILE_SIZE,null);
         if(thisPlaying.getGamePlayPanel().isDebugging()){
             g.setColor(Color.BLUE);

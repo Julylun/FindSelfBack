@@ -25,15 +25,18 @@ public class EventManager extends Entity {
     private Coordinate2D[] eventCoordinateS;
     private String taskString;
     private boolean isDisplayTask;
-    private boolean[] isDisableS;
+    public boolean[] isDisableS;
     public EventManager(Playing playing){
         thisPlaying = playing;
         eventCoordinateS =  new Coordinate2D[]{
                 new Coordinate2D(348,0), //Trash can event
                 new Coordinate2D(704,0), //Remove Trash can event
-                new Coordinate2D(1400,0) //Ta;k to police event
+                new Coordinate2D(1400,0), //Talk to police event
+                new Coordinate2D(1800,0),
+                new Coordinate2D(1750,0), //Stop
+                new Coordinate2D(1945,0) //Run and jump
         };
-        isDisableS = new boolean[]{false,false,false};
+        isDisableS = new boolean[]{false,false,false,false,true,false};
     }
     @Override
     public void update() {
@@ -45,19 +48,42 @@ public class EventManager extends Entity {
                     0);
         }
         if(eventCoordinateS[1].getX() < playerHitBox.getX() && !isDisableS[1]){
-            removeTask();
+            removeTask(1);
         }
         if(eventCoordinateS[2].getX() < playerHitBox.getX() && !isDisableS[2]){
             setSubtitleEvent(Conversation.Begin.POLICE_TALKING_EVENT,
                     true, true,
                     Conversation.Task.TALK_TO_THE_POLICE,2);
         }
+        if(eventCoordinateS[3].getX() < playerHitBox.getX() && !isDisableS[3]){
+            setSubtitle(Conversation.Begin.RETURN_THE_POLICE);
+            stopPlayerMoving();
+            thisPlaying.leftPressed = true;
+            isDisableS[4] = false;
+        }
+        if(eventCoordinateS[4].getX() > playerHitBox.getX() && !isDisableS[4]){
+            stopPlayerMoving();
+            isDisableS[4] = true;
+        }
+        if(eventCoordinateS[5].getX() < playerHitBox.getX() && !isDisableS[5]){
+            stopPlayerMoving();
+            setSubtitleEvent(Conversation.Begin.CANT_WALK_THROUGH_GLASS,
+                    true,true,
+                    Conversation.Task.JUMP_THROUGH_THE_GLASSES,
+                    5);
+        }
     }
-    private void removeTask(){
+    public void removeTask(int eventCode){
+        if(eventCode != -1)
+            isDisableS[eventCode] = true;
         isDisplayTask = false;
         taskString = "";
     }
 
+    private void setSubtitle(String[] currentConversation){
+        thisPlaying.getSubtitle().setCurrentConversation(currentConversation);
+        thisPlaying.getSubtitle().setDisplay(true);
+    }
     private void setSubtitleEvent(String[] currentConversation, boolean isDisplaySubtitle, boolean isHasTask, String task, int eventIndex){
         thisPlaying.getSubtitle().setCurrentConversation(currentConversation);
         thisPlaying.getSubtitle().setDisplay(isDisplaySubtitle);
@@ -84,6 +110,7 @@ public class EventManager extends Entity {
 
     @Override
     public void paint(Graphics g, int xOffset) {
+//        System.out.println(isDisplayTask);
         if(isDisplayTask){
 //            System.out.println(currentConversation[currentSubtitleIndex]);
             Graphics2D g2d = (Graphics2D) g.create();

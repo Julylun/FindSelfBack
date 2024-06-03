@@ -98,7 +98,10 @@ public class MapManager {
 
                 for(Tile tile: tileTreeSet){
 //                    PrintColor.println(PrintColor.BLUE_BOLD, tile.value + "");
-                    if(tile.value > spriteMap.length) continue;
+                    if(tile.value > spriteMap.length ||
+                            (columnIndex*GamePlayPanel.TILE_SIZE - xOffset < -GamePlayPanel.TILE_SIZE ||
+                                    columnIndex*GamePlayPanel.TILE_SIZE - xOffset - GamePlayPanel.TILE_SIZE >
+                                            GamePlayPanel.SCREEN_WIDTH)) continue;
                     graphics2D.drawImage(
                             spriteMap[tile.value],
                             columnIndex*GamePlayPanel.TILE_SIZE - xOffset,

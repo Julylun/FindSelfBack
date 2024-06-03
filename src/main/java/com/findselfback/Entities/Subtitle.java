@@ -10,6 +10,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 
+import static com.findselfback.Utilz.Conversation.Begin.POLICE_CONVERSATION;
 import static java.awt.SystemColor.text;
 
 @Data
@@ -36,6 +37,21 @@ public class Subtitle extends Entity{
             }
         }
     }
+
+    public void setEventSubtitleByNPC(int EventCode){
+        switch (EventCode){
+            case NPC.TRAFFIC_POLICE: {
+                thisPlaying.getEventManager().removeTask(-1);
+                setCurrentConversation(POLICE_CONVERSATION);
+                setDisplay(true);
+                setHasTask(true);
+                thisPlaying.getEventManager().isDisableS[3] = true;
+                thisPlaying.EButton = false;
+                break;
+            }
+        }
+    }
+
     @Override
     public void update() {
 

@@ -97,6 +97,13 @@ public class SpriteSheet {
     public void createSprite(int spriteKey){
         spriteMap.put(spriteKey, new Vector<Coordinate2D>());
     }
+    public void createSprite(int spriteKey,int xPos, int yPos, int width, int height, int numberOfSprite){
+        Vector<Coordinate2D> spriteCoordinateList = new Vector<Coordinate2D>();
+        for(int i = 0; i < numberOfSprite; i++){
+            spriteCoordinateList.add(new Coordinate2D(xPos + width*i,yPos));
+        }
+        createSprite(spriteKey,spriteCoordinateList);
+    }
     public void createSprite(int spriteKey, Vector<Coordinate2D> spriteCoordinate){
         spriteMap.put(spriteKey, spriteCoordinate);
     }
