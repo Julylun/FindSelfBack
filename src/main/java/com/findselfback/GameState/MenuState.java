@@ -25,8 +25,8 @@ public class MenuState extends State implements Statemethod {
         init();
     }
     private void init(){
-        icon = new ImageIcon("Resources/background/MenuBG.gif").getImage();
-        startButton = new MenuButton(GamePlayPanel.SCREEN_WIDTH/5,(GamePlayPanel.SCREEN_HEIGHT- Constant.UI.MenuSize.SCALING_WIDTH)/2,"Start");
+        icon = new ImageIcon("Resources/background/MenuBG2.gif").getImage();
+        startButton = new MenuButton(GamePlayPanel.SCREEN_WIDTH/2,(GamePlayPanel.SCREEN_HEIGHT- Constant.UI.MenuSize.SCALING_WIDTH)/2,"Start");
     }
 
     @Override

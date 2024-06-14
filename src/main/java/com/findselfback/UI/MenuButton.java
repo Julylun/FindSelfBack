@@ -12,9 +12,9 @@ import java.awt.geom.Rectangle2D;
 public class MenuButton {
     private Rectangle2D.Float border;
     private Rectangle2D.Float hitBox;
-    public final Color NO_ON = new Color(145, 145, 145);
-    public final Color ON = new Color(218, 218, 218);
-    public final Color PRESSED = new Color(255, 255, 255);
+    public final Color NO_ON = new Color(255, 255, 255);
+    public final Color ON = new Color(255, 233, 0, 255);
+    public final Color PRESSED = new Color(255, 123, 123);
     private Color stateColor;
     private String text;
     public MenuButton(float x, float y, String text){
