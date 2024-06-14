@@ -10,6 +10,15 @@ import java.util.TreeSet;
 
 public class Environment {
 
+    /**
+     * Kiểm tra thực thể có khả năng di chuyển vào vị trí x, y hay không
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param levelData
+     * @return
+     */
     public static boolean canMoveHere(float x, float y, float width, float height, LayerTile[][] levelData){
 
         if(
@@ -47,12 +56,25 @@ public class Environment {
         return false;
     }
 
+
+    /**
+     * Kiểm tra xem thực thể có đang đứng trên vật thể được xem là đất hay không
+     * @param hitBox
+     * @param levelData
+     * @return
+     */
     public static boolean isOnGround(Rectangle2D.Float hitBox, LayerTile[][] levelData){
         if(isSolid(hitBox.x, hitBox.y + hitBox.height +1, levelData) || isSolid(hitBox.x + hitBox.width + 1, hitBox.y, levelData))
             return true;
         return false;
     }
 
+    /**
+     * Kiểm tra thực thể có ứng gần tường hay không, nếu có trả về khoảng cách giữa thực thể và tường
+     * @param hitBox
+     * @param xSpeed
+     * @return
+     */
     public static float getEntityPosNearWall(Rectangle2D.Float hitBox, float xSpeed){
         if(xSpeed == 0) return 0;
         int originalTileXPos = (int)(hitBox.x / GamePlayPanel.TILE_SIZE);
@@ -66,6 +88,12 @@ public class Environment {
         }
     }
 
+    /**
+     * kiểm tra nhân vật có đang đứng dưới tường hoặc trên dất hay không
+     * @param hitBox
+     * @param airSpeed
+     * @return
+     */
     public static float getEntityYPostUnderWallOrAboveGround(Rectangle2D.Float hitBox, float airSpeed){
         int originalTileXPos = (int)(hitBox.y / GamePlayPanel.TILE_SIZE);
         if(airSpeed > 0){

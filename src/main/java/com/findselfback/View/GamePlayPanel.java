@@ -51,8 +51,10 @@ class FPSCounter extends Thread{
         return fps;
     }
 }
+
+//Static GameState state = MENU;
 @Data
-public class GamePlayPanel extends JPanel implements Runnable{
+public class GamePlayPanel extends JPanel implements Runnable {
     private final GameFrame thisGameFrame;
     private double currentFPS = 0, currentUPS = 0;
     private boolean isDebugging = false;
@@ -77,9 +79,9 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
 
     //the tile size after scaling
-    public static final int TILE_SIZE = (int)(ORIGINAL_TILE_SIZE * SCALE); //128*3 = 384px ~ 1 block pixel of game;
-    public static final int MAX_SCREEN_COLUMN =  16;
-    public static final int MAX_SCREEN_ROW =  9;
+    public static final int TILE_SIZE = (int) (ORIGINAL_TILE_SIZE * SCALE); //128*3 = 384px ~ 1 block pixel of game;
+    public static final int MAX_SCREEN_COLUMN = 16;
+    public static final int MAX_SCREEN_ROW = 9;
     public static final int SCREEN_WIDTH = TILE_SIZE * MAX_SCREEN_COLUMN;
     public static final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW;
     public static final int FPS = 60;
@@ -91,6 +93,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
 
     private Playing playing = new Playing(this);
     private MenuState menuState = new MenuState(this);
+
 
     private Thread gameThread;
     private Thread updateThread, renderThread;
@@ -129,6 +132,7 @@ public class GamePlayPanel extends JPanel implements Runnable{
         updateThread = new Thread(GamePlayPanel.this::updateLoop);
         renderThread = new Thread(GamePlayPanel.this::renderLoop);
 
+        //Nguyễn Thị Ly
         updateThread.start();
         renderThread.start();
     }
@@ -136,19 +140,23 @@ public class GamePlayPanel extends JPanel implements Runnable{
     public void renderLoop(){
 
         double drawInterval = 1000000000/FPS; //Average time of a frame in theory
+
         double deltaFrame = 0;
         double lastCheck = System.currentTimeMillis();
         double previousTime = System.nanoTime();
         double frames = 0;
         while (true){
             double currentTime = System.nanoTime();
-            deltaFrame += (currentTime - previousTime) / drawInterval;
+            deltaFrame += (currentTime - previousTime) / drawInterval; //cuối trừ đầu chia dự kiến
             previousTime = currentTime;
 
             if(isNext){
                 isNext = false;
                 continue;
             }
+            // Thực tế > thời gian dự kiến => vòng lặp dài hơn thời gian dự kiên => in ra
+            // Thực tế < thời gian dự kiến => vòng lặp ngắn hơn => đợi một khoảng thời gian đúng bằng tgian dự kiến - tgian thực tế
+
             if(deltaFrame >= 1) {
                 repaint();
                 frames++;
@@ -304,7 +312,6 @@ public class GamePlayPanel extends JPanel implements Runnable{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         switch (GameState.state){
             case PLAYING:
                 playing.draw(g);

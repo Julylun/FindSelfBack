@@ -12,10 +12,10 @@ import java.awt.event.*;
  * InputHandle is used to detect player's typing key
  */
 public class InputHandle implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
-    public boolean upPressed, rightPressed, downPressed, leftPressed;
-    private int lastPressed;
+    public boolean upPressed, rightPressed, downPressed, leftPressed; //A W D S
+    private int lastPressed; //phím cuoois cùng mà mình bấm
     private GamePlayPanel thisGamePlayPanel;
-    private KeyEvent lastKeyEvent;
+    private KeyEvent lastKeyEvent; //Phím cuối -> kiểu dữ liệu KeyEvent;
     private MouseEvent lastMouseEvent, lastClickEvent;
     private MouseWheelEvent lastMouseWheelEvent;
     public InputHandle(GamePlayPanel gamePlayPanel){
@@ -34,6 +34,7 @@ public class InputHandle implements KeyListener, MouseListener, MouseMotionListe
     @Override
     public void keyPressed(KeyEvent e) {
         //When player press key -> set true -> means that key is being press
+
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
             GameState.state = GameState.MENU;
         }

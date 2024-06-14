@@ -76,12 +76,15 @@ public class SpriteSheet {
         if(currentTime >= delayTime){
             if(frameIndex >= currentCoordinate.size() - 1) frameIndex = -1;
             frameIndex++;
+
+            //Lấy tọa độ ảnh -> lấy ảnh từ sprite sheet bằng cách lấy tọa độ + chiều dài/chiều rộng ảnh
             Coordinate2D coordinate2D = currentCoordinate.get(frameIndex);
             currentSprite = assetSheet.getSubimage(coordinate2D.getX(),
                     coordinate2D.getY(),
                     tileWidth,
                     tileHeight
             );
+            //bỏ qua
             if(isFlip) currentSprite = createFlipped(currentSprite);
             currentTime = 0;
         } else currentTime++;

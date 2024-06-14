@@ -25,13 +25,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Playing extends State implements Statemethod {
-    private Player player;
+    private Player player; //<--
     private Rabbit[] rabbitList;
     private SmokeArea[] smokeFxList;
     private FX[] FXList;
     private NPC[] NPCList;
     private Snow[] snowList;
-    public float windSpeed;
+    public float windSpeed; // > 0 thì đi về bên phải < 0 thì đi bén trái = 0 gió đứng im
+
+
+
     public int delayWindTime = 400;
     public int currentWindTick = 0;
     private MapManager mapManager;

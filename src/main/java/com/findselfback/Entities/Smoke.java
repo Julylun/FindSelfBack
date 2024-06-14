@@ -19,6 +19,7 @@ public class Smoke extends Entity{
         spriteSheet = new SpriteSheet(Constant.AssetPath.FX.SMOKE,32,32);
         spriteSheet.createSprite(Constant.Animation.FX.RUNNING,0,0,32,32,8);
         spriteSheet.setCurrentSprite(Constant.Animation.FX.RUNNING);
+
         renew();
     }
 
@@ -26,7 +27,10 @@ public class Smoke extends Entity{
         spriteSheet.setCurrentSprite(Constant.Animation.FX.RUNNING);
         spriteSheet.setFrameIndex(0);
         flySpeed = (float) ThreadLocalRandom.current().nextDouble(0,0.8);
+
         spriteSheet.setDelayTime(ThreadLocalRandom.current().nextInt(20,70));
+//        spriteSheet.setDelayTime(35);
+
         drawWidth = (float) ThreadLocalRandom.current().nextDouble(16,32);
         increaseSizeSpeed = (float) ThreadLocalRandom.current().nextDouble(1,5);
         maxSize = (float) ThreadLocalRandom.current().nextDouble(32,64);

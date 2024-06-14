@@ -21,21 +21,28 @@ public class Player extends Entity {
     private Playing thisPlaying;
     private SpriteSheet sprite;
     private boolean isMoving, isInAir = false;
-    private Clip walkSound, jumpSound;
 
     private boolean moveLeft = false, moveRight = false, moveTop = false, moveBot = false;
     private boolean isFlip = false;
     private int direction;
+
+    private Clip walkSound, jumpSound;
+
+    //Thuộc tính môi trường -> trọng trường, gió, lực nhảy
     private float gravity = (float)(0.02f * GamePlayPanel.SCALE);
     private float airSpeed = 0;
     private float jumpSpeed = (float)(-1.3f * GamePlayPanel.SCALE);
     private float fallingSpeedAfterCollision = (float) (0.5f * GamePlayPanel.SCALE);
 
+//    [Frame -> windows chứa components]
+//    GameFrame
+//    [GamePlayPanel]; frame nó chỉ thị được duy nhất một phần tử, nó tương tự 1 panel;
+//    Muốn GameFrame hiển thị game -> thêm một cái panel vào cái GameFrame
 
 
     public Player(Playing playing, String spritePath, InputHandle inputHandle){
         thisPlaying = playing;
-        thisInputHandle = inputHandle;
+        thisInputHandle = inputHandle; //gán vào một biết để nhận biêết nút khi mà người dùng bấm
         init();
 
         this.sprite = new SpriteSheet(spritePath, GamePlayPanel.ORIGINAL_TILE_SIZE, GamePlayPanel.ORIGINAL_TILE_SIZE);
@@ -55,7 +62,7 @@ public class Player extends Entity {
         hitBox.y = (int)this.y + GamePlayPanel.TILE_SIZE/5;
         hitBox.width = GamePlayPanel.TILE_SIZE*2/5;
         hitBox.height = GamePlayPanel.TILE_SIZE*4/5;
-        this.speed = 0.8f; //map editor
+        this.speed = 0.8f;
     }
 
     private void drawHitBox(Graphics g, int xOffset,boolean isEnable){
@@ -73,6 +80,10 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * Đưa vào một tốc độ, dịch chuyển nhân vật đúng bằng tốc độ đó và tránh bị xuyên tường
+     * @param xSpeed
+     */
     private void updateXPos(float xSpeed){
         if(Environment.canMoveHere(x+xSpeed,hitBox.y-1, hitBox.width, hitBox.height,
                 thisPlaying.getMapManager().getLevel().getLevelData())
@@ -83,6 +94,9 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * đặt trạng thái bay thành false
+     */
     private void resetInAir(){
         isInAir = false;
         airSpeed = 0;
@@ -99,7 +113,9 @@ public class Player extends Entity {
         //Set sprite
         //--Running animation
         Vector<Coordinate2D> coordinate2DVector = new Vector<>();
-        for(int i = 0; i < 13; i++)
+        //Chứa list coordinate2D các tọa độ của frame;
+
+        for(int i = 0; i < 13; i++) //13 frame
             coordinate2DVector.add(new Coordinate2D(i*32,32));
         sprite.createSprite(RUNNING,coordinate2DVector);
         //--Idle animation
@@ -115,10 +131,12 @@ public class Player extends Entity {
         }
         sprite.createSprite(FALLING,coordinate2DVector);
 
-
         sprite.setDelayTime(2);
     }
 
+    /**
+     *
+     */
     private void jump(){
         if(isInAir) return;
         airSpeed += jumpSpeed;
@@ -134,6 +152,7 @@ public class Player extends Entity {
     public void update() {
         float xSpeed = 0, ySpeed = 0;
         float newSpeed = (thisPlaying.shiftPressed)? speed*1.4f : speed;
+
 
         if(!isInAir && !Environment.isOnGround(hitBox,thisPlaying.getMapManager().getLevel().getLevelData())){
             isInAir = true;
@@ -161,6 +180,7 @@ public class Player extends Entity {
                 direction = 1;
             }
         }
+
         if(isInAir){
             if(Environment.canMoveHere(hitBox.x,hitBox.y+airSpeed,hitBox.width,hitBox.height,thisPlaying.getMapManager().getLevel().getLevelData())){
                 y += airSpeed;
@@ -200,6 +220,17 @@ public class Player extends Entity {
             sprite.nextFrame(false);
         }
         else{
+
+            // Mail != gmail
+            // Yahoo -> yahoo mail -> abcxyz@yahoo.com.vn
+            // gmail -> abcxyz@gmail.com
+            // @outlook.com.vn -> gooogle -> token -> chặn <- google != @outlook.com.vn
+            // bắt buộc ng dùng đăng nhập bằng tkhoan google
+            //
+            // Tai khoan -> google -> API token -> fetch Gooogle -> lay data -> googgle calendar
+
+
+
             if (!thisPlaying.isNoPressed()) {
                 if (thisPlaying.leftPressed && !thisPlaying.rightPressed) {
                     sprite.nextFrame(false);
